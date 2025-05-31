@@ -58,39 +58,6 @@ struct ContentView: View {
             vm.selectedLocation = locationId
             
         }
-        
-//        NavigationStack(path: $vm.navigationPath) {
-//            SearchView()
-//                .navigationTitle("Search")
-//                .navigationDestination(for: String.self) { id in
-//                    USGSLocationView(id: id)
-//                }
-//        }
-//        .environmentObject(vm)
-        
-        
-        
-//        if vm.favoriteLocations.isEmpty {
-//            SearchView()
-//                .onTapGesture {
-//                    withAnimation {
-//                        vm.addFavoriteLocation("01420500")
-//                    }
-//                }
-//        } else {
-//            TabView(selection: $vm.selectedLocation) {
-//                ForEach(vm.favoriteLocations, id: \.hashValue) { locId in
-//                        ZStack {
-//                            Rectangle()
-//                                .foregroundStyle(.linearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom))
-//                            USGSLocationView(id: locId)
-//                        }
-//                        .tag(locId)
-//                }
-//            }
-//            .tabViewStyle(.page)
-//            .environmentObject(vm)
-//        }
     }
 }
 

@@ -16,7 +16,10 @@ public struct SmallWidgetView: View {
     }
     
     public var body: some View {
-        if let cfs = data.cfs, let temp = data.tempF, let cfsDateStr = data.cfsDateStr, let tempDateStr = data.tempDateStr, let loc = data.locationName, let locShort = loc.split(separator: " ").first {
+        if let cfs = USGSDataSeries.cfs.getCurrentValueString(from: data),
+           let temp = USGSDataSeries.temp.getCurrentValueString(from: data, modifier: USGSDataSeries.CtoFconversion),
+           let loc = data.locationName,
+           let locShort = loc.split(separator: " ").first {
             ZStack {
                 VStack {
                     Text(locShort.uppercased())
@@ -28,7 +31,7 @@ public struct SmallWidgetView: View {
                 
                 VStack {
                     Spacer()
-                    Chart(data.cfsAllValues) { point in
+                    Chart(USGSDataSeries.cfs.getAllValues(from: data) ?? []) { point in
                         if let val = Double(point.value) {
                             LineMark(
                                 x: .value("Date", point.date),
@@ -80,7 +83,9 @@ public struct MediumWidgetView: View {
     }
     
     public var body: some View {
-        if let cfs = data.cfs, let temp = data.tempF, let loc = data.locationName {
+        if let cfs = USGSDataSeries.cfs.getCurrentValueString(from: data),
+           let temp = USGSDataSeries.temp.getCurrentValueString(from: data, modifier: USGSDataSeries.CtoFconversion),
+           let loc = data.locationName {
             ZStack {
                 VStack {
                     Text(loc
@@ -95,12 +100,18 @@ public struct MediumWidgetView: View {
                 
                 VStack {
                     Spacer()
-                    Chart(data.cfsAllValues) { point in
-                        if let val = Double(point.value) {
-                            LineMark(
-                                x: .value("Date", point.date),
-                                y: .value("Value", val)
-                            )
+                    Chart {
+                        ForEach(data.settings.graphSettings.series) { series in
+                            ForEach(series.usgsGraphedElement.getAllValues(from: data) ?? []) { point in
+                                if let val = Double(point.value) {
+                                    LineMark(
+                                        x: .value("Date", point.date),
+                                        y: .value("Value", val),
+                                        series: .value("Value", series.usgsGraphedElement.rawValue)
+                                    )
+                                    .foregroundStyle(series.graphForegroundColor.toSwiftUIColor)
+                                }
+                            }
                         }
                     }
                     .chartYScale(domain: .automatic(includesZero: false))

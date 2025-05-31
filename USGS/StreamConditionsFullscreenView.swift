@@ -21,14 +21,15 @@ struct StreamConditionsFullscreenView: View {
             VStack {
                 HStack(alignment: .center, spacing: 0) {
                     Spacer()
-                    if let loc = vm.usgsData.first(where: { $0.key == vm.selectedLocation }) {
-                        if let temp = loc.value?.tempF {
+                    if let loc = vm.usgsData.first(where: { $0.key == vm.selectedLocation }),
+                       let value = loc.value {
+                        if let temp = USGSDataSeries.temp.getCurrentValueString(from: value, modifier: USGSDataSeries.CtoFconversion) {
                             HighlightedDataPointView(primary: temp, subtitle: "Water Temp (°F)")
                                 .frame(width: Self.mainDimension, height: Self.mainDimension)
                             Spacer()
                         }
                         Divider()
-                        if let cfs = loc.value?.cfs {
+                        if let cfs = USGSDataSeries.cfs.getCurrentValueString(from: value) {
                             Spacer()
                             HighlightedDataPointView(primary: cfs, subtitle: "Flow Rate (cfs)")
                                 .frame(width: Self.mainDimension, height: Self.mainDimension)

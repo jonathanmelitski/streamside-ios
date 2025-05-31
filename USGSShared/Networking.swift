@@ -28,6 +28,58 @@ public class NetworkManager {
 
 // MARK: Data Structures + Decoding
 
+public enum USGSDataSeries: String, Codable {
+    case cfs = "00060"
+    case temp = "00010"
+    
+    public static func CtoFconversion(data: USGSDataSourceValueActuallyWhy) -> String? {
+        let temp = data.value
+        guard let numTemp = Double(temp) else {
+            return nil
+        }
+        
+        let fahrConv = (numTemp * 9/5) + 32
+        let fahrString = String(format: "%.1f", fahrConv)
+        return String("\(fahrString)°")
+    }
+    
+    public func getAllValues(from data: USGSData) -> [USGSDataSourceValueActuallyWhy]? {
+        data.innerData.sources.first(where: { $0.variable.code.contains(where: { $0.value == self.rawValue })})?.values[0].value
+    }
+    
+    public func getCurrentValue(from data: USGSData) -> USGSDataSourceValueActuallyWhy?  {
+        guard let vals = self.getAllValues(from: data) else { return nil }
+        
+        let sorted = vals.sorted(by: { $0.date > $1.date })
+        
+        return sorted.first
+    }
+    
+    public func getCurrentValueString(from data: USGSData, modifier: ((USGSDataSourceValueActuallyWhy) -> String?)? = nil) -> String? {
+        guard let value = self.getCurrentValue(from: data) else { return nil }
+        
+        if let modifier {
+            return modifier(value)
+        }
+        
+        return value.value
+    }
+    
+    public func getCurrentValueDate(from data: USGSData) -> Date? {
+        guard let value = self.getCurrentValue(from: data) else { return nil }
+        return value.date
+    }
+    
+    public func getCurrentValueDateString(from data: USGSData) -> String? {
+        guard let value = self.getCurrentValue(from: data) else { return nil }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm" // 'H' = 24-hour format, no leading zero
+        formatter.timeZone = TimeZone.current // or set your preferred zone
+        
+        return formatter.string(from: value.date)
+    }
+}
+
 public struct USGSData: Codable {
     public static var sampleData: USGSData {
         let asset = NSDataAsset(name: "SampleUSGSData")!
@@ -41,16 +93,9 @@ public struct USGSData: Codable {
         return try! dec.decode(USGSData.self, from: data)
     }
     
-    
-    public static let cfsVariableCode = "00060"
-    public static let tempVariableCode = "00010"
-    
+    public var settings: LocationSettings
     
     public let innerData: USGSInnerDataTimeSeries
-    
-    public var cfsAllValues: [USGSDataSourceValueActuallyWhy] {
-        return (self.innerData.sources.first(where: { $0.variable.code.contains(where: { $0.value == Self.cfsVariableCode })})?.values[0].value) ?? []
-    }
     
     public var locationName: String? {
         var value: String? = nil
@@ -61,69 +106,17 @@ public struct USGSData: Codable {
         return value
     }
     
-    public var tempAllValues: [USGSDataSourceValueActuallyWhy] {
-        return (self.innerData.sources.first(where: { $0.variable.code.contains(where: { $0.value == Self.tempVariableCode })})?.values[0].value) ?? []
-    }
-    
-    public var cfsCurrentValue: USGSDataSourceValueActuallyWhy? {
-        guard !self.cfsAllValues.isEmpty else { return nil }
-        return self.cfsAllValues.sorted(by: { $0.date > $1.date }).first!
-    }
-    
-    public var cfs: String? {
-        return self.cfsCurrentValue?.value
-    }
-    
-    public var cfsDate: Date? {
-        return self.cfsCurrentValue?.date
-    }
-    
-    public var cfsDateStr: String? {
-        guard let date = cfsDate else { return nil }
-        
-        let formatter = DateFormatter()
-        formatter.dateFormat = "h:mm" // 'H' = 24-hour format, no leading zero
-        formatter.timeZone = TimeZone.current // or set your preferred zone
-
-        return formatter.string(from: date)
-    }
-    
-    public var tempCurrentValue: USGSDataSourceValueActuallyWhy? {
-        guard !self.tempAllValues.isEmpty else { return nil }
-        
-        return self.tempAllValues.sorted(by: { $0.date > $1.date }).first!
-    }
-    
-    public var tempC: String? {
-        return self.tempCurrentValue?.value
-    }
-    
-    public var tempDate: Date? {
-        return self.tempCurrentValue?.date
-    }
-    
-    public var tempDateStr: String? {
-        guard let date = tempDate else { return nil }
-        
-        let formatter = DateFormatter()
-        formatter.dateFormat = "h:mm" // 'H' = 24-hour format, no leading zero
-        formatter.timeZone = TimeZone.current // or set your preferred zone
-
-        return formatter.string(from: date)
-    }
-    
-    public var tempF: String? {
-        guard let temp = tempC, let numTemp = Double(temp) else {
-            return nil
-        }
-        
-        let fahrConv = (numTemp * 9/5) + 32
-        let fahrString = String(format: "%.1f", fahrConv)
-        return String("\(fahrString)°")
-    }
-    
     enum CodingKeys: String, CodingKey {
         case innerData = "value"
+        case settings = "settings"
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        var container = try decoder.container(keyedBy: CodingKeys.self)
+        self.innerData = try container.decode(USGSInnerDataTimeSeries.self, forKey: .innerData)
+        
+        // If pulling from cache, we will find the data, else (pulling from API) set the settings to default
+        self.settings = (try? container.decode(LocationSettings.self, forKey: .settings)) ?? LocationSettings.defaultSettings
     }
 }
 
