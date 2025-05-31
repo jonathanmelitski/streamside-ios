@@ -17,7 +17,6 @@ public struct LocationSettings: Codable {
         )
     )
     
-    
     public var graphSettings: GraphSettings
 }
 
