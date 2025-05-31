@@ -106,6 +106,16 @@ public struct MediumWidgetView: View {
                     .chartYScale(domain: .automatic(includesZero: false))
                     .chartYAxis(.hidden)
                     .chartXAxis(.visible)
+                    .chartXAxis {
+                        AxisMarks(values: .stride(by: Calendar.Component.day, count: 2)) {
+                            AxisValueLabel()
+                                .foregroundStyle(Color("GraphAxisForeground"))
+                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.2, dash: [3]))
+                                .foregroundStyle(Color("GraphAxisForeground"))
+                            AxisTick(stroke: StrokeStyle(lineWidth: 0.2, dash: [3]))
+                                .foregroundStyle(Color("GraphAxisForeground"))
+                        }
+                    }
                     .frame(height: 75)
                 }
                 
