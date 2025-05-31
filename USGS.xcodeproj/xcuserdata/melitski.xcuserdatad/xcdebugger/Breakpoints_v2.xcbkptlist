@@ -1,0 +1,716 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "ECA4A782-9376-4F5C-A7C7-FC2CAF22CFAF"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8FE68FFF-75A1-41D1-B415-703A41FCCDAB"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGS Widget/WidgetViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "21"
+            endingLineNumber = "21"
+            landmarkName = "refresh()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "28A882DB-FD2B-4645-8F83-6AD8A2A89CCD"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGS Widget/WidgetViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "23"
+            endingLineNumber = "23"
+            landmarkName = "refresh()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "05C0ADD3-2243-4143-8AD6-6CF4E4564509"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGS/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "37"
+            endingLineNumber = "37"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8BFEBD9F-2A80-41ED-A6E6-8D48DA8F8CCB"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGS/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "38"
+            endingLineNumber = "38"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "40724B37-23F7-4EAC-9CDF-44F59891750B"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGS/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "42"
+            endingLineNumber = "42"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "4B2F888F-54C0-48F3-B4D2-0E647F8A489A"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGS/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "47"
+            endingLineNumber = "47"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "9F8A87F1-CE8F-4F5D-A805-8D6D73E7D734"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGS/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "52"
+            endingLineNumber = "52"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7DFDA475-C39C-413B-BFC1-B9324AB286BD"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGS/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "40"
+            endingLineNumber = "40"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "97A9831B-D9B4-4F46-BF33-4CB2BDE1B2C6"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGS/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "41"
+            endingLineNumber = "41"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "6EF648FD-1984-4F9A-982D-24ACA979524C"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGS/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "56"
+            endingLineNumber = "56"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "6EF648FD-1984-4F9A-982D-24ACA979524C - 5db635ab2ab58568"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #3 (Foundation.URL) -&gt; () in USGS.ContentView.body.getter : some"
+                  moduleName = "USGS.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGS/ContentView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "56"
+                  endingLineNumber = "56">
+               </Location>
+               <Location
+                  uuid = "6EF648FD-1984-4F9A-982D-24ACA979524C - d777b233e6e30b9d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 (Swift.String) -&gt; Swift.Bool in closure #3 (Foundation.URL) -&gt; () in USGS.ContentView.body.getter : some"
+                  moduleName = "USGS.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGS/ContentView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "56"
+                  endingLineNumber = "56">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "D64D5347-E83A-4117-9083-4BCFC8D25413"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGS/ContentView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "58"
+            endingLineNumber = "58"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "90B16D5C-577D-40E3-B98C-176231892856"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGS Widget/USGS_Widget.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "22"
+            endingLineNumber = "22"
+            landmarkName = "timeline(for:in:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "90B16D5C-577D-40E3-B98C-176231892856 - f59b4a41e8326720"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for USGS_WidgetExtension.Provider.timeline(for: USGS_WidgetExtension.ConfigurationAppIntent, in: WidgetKit.TimelineProviderContext) async -&gt; WidgetKit.Timeline&lt;USGS_WidgetExtension.SimpleEntry&gt;"
+                  moduleName = "USGS WidgetExtension.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGS%20Widget/USGS_Widget.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "22"
+                  endingLineNumber = "22">
+               </Location>
+               <Location
+                  uuid = "90B16D5C-577D-40E3-B98C-176231892856 - e084b838400c2cac"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for USGS_WidgetExtension.Provider.timeline(for: USGS_WidgetExtension.ConfigurationAppIntent, in: WidgetKit.TimelineProviderContext) async -&gt; WidgetKit.Timeline&lt;USGS_WidgetExtension.SimpleEntry&gt;"
+                  moduleName = "USGS WidgetExtension.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGS%20Widget/USGS_Widget.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "22"
+                  endingLineNumber = "22">
+               </Location>
+               <Location
+                  uuid = "90B16D5C-577D-40E3-B98C-176231892856 - c303cad6492da4ee"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for USGS_WidgetExtension.Provider.timeline(for: USGS_WidgetExtension.ConfigurationAppIntent, in: WidgetKit.TimelineProviderContext) async -&gt; WidgetKit.Timeline&lt;USGS_WidgetExtension.SimpleEntry&gt;"
+                  moduleName = "USGS WidgetExtension.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGS%20Widget/USGS_Widget.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "22"
+                  endingLineNumber = "22">
+               </Location>
+               <Location
+                  uuid = "90B16D5C-577D-40E3-B98C-176231892856 - bbf78b6ffaacda8f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for USGS_WidgetExtension.Provider.timeline(for: USGS_WidgetExtension.ConfigurationAppIntent, in: WidgetKit.TimelineProviderContext) async -&gt; WidgetKit.Timeline&lt;USGS_WidgetExtension.SimpleEntry&gt;"
+                  moduleName = "USGS WidgetExtension.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGS%20Widget/USGS_Widget.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "22"
+                  endingLineNumber = "22">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8EA5EC65-6E1B-4AE0-AA28-2D327CA69CCD"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGS Widget/USGS_Widget.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "23"
+            endingLineNumber = "23"
+            landmarkName = "timeline(for:in:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "8EA5EC65-6E1B-4AE0-AA28-2D327CA69CCD - c303cad6492da50f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for USGS_WidgetExtension.Provider.timeline(for: USGS_WidgetExtension.ConfigurationAppIntent, in: WidgetKit.TimelineProviderContext) async -&gt; WidgetKit.Timeline&lt;USGS_WidgetExtension.SimpleEntry&gt;"
+                  moduleName = "USGS WidgetExtension.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGS%20Widget/USGS_Widget.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "23"
+                  endingLineNumber = "23">
+               </Location>
+               <Location
+                  uuid = "8EA5EC65-6E1B-4AE0-AA28-2D327CA69CCD - bbf78b6ffaacdb6e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for USGS_WidgetExtension.Provider.timeline(for: USGS_WidgetExtension.ConfigurationAppIntent, in: WidgetKit.TimelineProviderContext) async -&gt; WidgetKit.Timeline&lt;USGS_WidgetExtension.SimpleEntry&gt;"
+                  moduleName = "USGS WidgetExtension.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGS%20Widget/USGS_Widget.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "23"
+                  endingLineNumber = "23">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "D368742D-5202-4F8E-8BF3-F4D3B8822268"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGSShared/SharedViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "80"
+            endingLineNumber = "80"
+            landmarkName = "fetchLocationData(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "80A07A52-5AB4-462C-B4E0-38937E161950"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGSShared/SharedViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "83"
+            endingLineNumber = "83"
+            landmarkName = "fetchLocationData(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "80A07A52-5AB4-462C-B4E0-38937E161950 - e8a075c5f38460b2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for USGSShared.SharedViewModel.fetchLocationData(Swift.String) async throws -&gt; USGSShared.USGSData"
+                  moduleName = "USGSShared"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGSShared/SharedViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "83"
+                  endingLineNumber = "83">
+               </Location>
+               <Location
+                  uuid = "80A07A52-5AB4-462C-B4E0-38937E161950 - 78a4c52f9e6e5f3d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for USGSShared.SharedViewModel.fetchLocationData(Swift.String) async throws -&gt; USGSShared.USGSData"
+                  moduleName = "USGSShared"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGSShared/SharedViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "83"
+                  endingLineNumber = "83">
+               </Location>
+               <Location
+                  uuid = "80A07A52-5AB4-462C-B4E0-38937E161950 - ad387adfd7d22434"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for USGSShared.SharedViewModel.fetchLocationData(Swift.String) async throws -&gt; USGSShared.USGSData"
+                  moduleName = "USGSShared"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGSShared/SharedViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "83"
+                  endingLineNumber = "83">
+               </Location>
+               <Location
+                  uuid = "80A07A52-5AB4-462C-B4E0-38937E161950 - 80747d5cc9c50677"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for USGSShared.SharedViewModel.fetchLocationData(Swift.String) async throws -&gt; USGSShared.USGSData"
+                  moduleName = "USGSShared"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGSShared/SharedViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "83"
+                  endingLineNumber = "83">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5256609B-35C2-4C9E-9C94-52CEFF1994B2"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGSShared/SharedViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "79"
+            endingLineNumber = "79"
+            landmarkName = "fetchLocationData(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "5256609B-35C2-4C9E-9C94-52CEFF1994B2 - e8a075c5f3859f3e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for USGSShared.SharedViewModel.fetchLocationData(Swift.String) async throws -&gt; USGSShared.USGSData"
+                  moduleName = "USGSShared"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGSShared/SharedViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "79"
+                  endingLineNumber = "79">
+               </Location>
+               <Location
+                  uuid = "5256609B-35C2-4C9E-9C94-52CEFF1994B2 - d27623311e631ace"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.String) -&gt; Swift.Bool in USGSShared.SharedViewModel.fetchLocationData(Swift.String) async throws -&gt; USGSShared.USGSData"
+                  moduleName = "USGSShared"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGSShared/SharedViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "79"
+                  endingLineNumber = "79">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "93E2FE0F-90E0-4437-B8AB-6B91863E232E"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGSShared/SharedViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "84"
+            endingLineNumber = "84"
+            landmarkName = "fetchLocationData(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "FF06EA52-F317-461C-B45C-8BCA8C8CAC18"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGSShared/SharedViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "85"
+            endingLineNumber = "85"
+            landmarkName = "fetchLocationData(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "EADE378E-A982-470A-B991-BA3430C6ABEB"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGSShared/SharedViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "24"
+            endingLineNumber = "24"
+            landmarkName = "init()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A03AC567-653B-44AC-9937-560D9E83A809"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGSShared/SharedViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "25"
+            endingLineNumber = "25"
+            landmarkName = "init()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7C8E0525-59F6-403D-AE25-CFE4EF2A8737"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGSShared/SharedViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "28"
+            endingLineNumber = "28"
+            landmarkName = "init()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "908DB654-B232-47BD-A0C2-723B97AA61A7"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGSShared/SharedViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "38"
+            endingLineNumber = "38"
+            landmarkName = "addFavoriteLocation(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "908DB654-B232-47BD-A0C2-723B97AA61A7 - 9dbcb7ee72f0e502"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #1 () async -&gt; () in USGSShared.SharedViewModel.addFavoriteLocation(Swift.String) -&gt; ()"
+                  moduleName = "USGSShared"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGSShared/SharedViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "38"
+                  endingLineNumber = "38">
+               </Location>
+               <Location
+                  uuid = "908DB654-B232-47BD-A0C2-723B97AA61A7 - 66193ef6a9328483"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for closure #1 () async -&gt; () in USGSShared.SharedViewModel.addFavoriteLocation(Swift.String) -&gt; ()"
+                  moduleName = "USGSShared"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGSShared/SharedViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "38"
+                  endingLineNumber = "38">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "EB9798FE-E6DF-4410-BD92-5580DC88420F"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGSShared/SharedViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "37"
+            endingLineNumber = "37"
+            landmarkName = "addFavoriteLocation(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "EB9798FE-E6DF-4410-BD92-5580DC88420F - 9dbcb7ee72f0e523"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #1 () async -&gt; () in USGSShared.SharedViewModel.addFavoriteLocation(Swift.String) -&gt; ()"
+                  moduleName = "USGSShared"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGSShared/SharedViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "37"
+                  endingLineNumber = "37">
+               </Location>
+               <Location
+                  uuid = "EB9798FE-E6DF-4410-BD92-5580DC88420F - 66193ef6a93284a2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for closure #1 () async -&gt; () in USGSShared.SharedViewModel.addFavoriteLocation(Swift.String) -&gt; ()"
+                  moduleName = "USGSShared"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGSShared/SharedViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "37"
+                  endingLineNumber = "37">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B4E1660C-208B-415B-AA34-F0F11C4512DC"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "USGSShared/SharedViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "36"
+            endingLineNumber = "36"
+            landmarkName = "addFavoriteLocation(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "B4E1660C-208B-415B-AA34-F0F11C4512DC - eae789be0575a3c2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for closure #1 () async -&gt; () in USGSShared.SharedViewModel.addFavoriteLocation(Swift.String) -&gt; ()"
+                  moduleName = "USGSShared"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGSShared/SharedViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "36"
+                  endingLineNumber = "36">
+               </Location>
+               <Location
+                  uuid = "B4E1660C-208B-415B-AA34-F0F11C4512DC - 68a919acfba999f7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for closure #1 () async -&gt; () in USGSShared.SharedViewModel.addFavoriteLocation(Swift.String) -&gt; ()"
+                  moduleName = "USGSShared"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGSShared/SharedViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "36"
+                  endingLineNumber = "36">
+               </Location>
+               <Location
+                  uuid = "B4E1660C-208B-415B-AA34-F0F11C4512DC - 9dbcb7ee72f0e6c4"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for closure #1 () async -&gt; () in USGSShared.SharedViewModel.addFavoriteLocation(Swift.String) -&gt; ()"
+                  moduleName = "USGSShared"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGSShared/SharedViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "36"
+                  endingLineNumber = "36">
+               </Location>
+               <Location
+                  uuid = "B4E1660C-208B-415B-AA34-F0F11C4512DC - 66193ef6a9328745"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) suspend resume partial function for closure #1 () async -&gt; () in USGSShared.SharedViewModel.addFavoriteLocation(Swift.String) -&gt; ()"
+                  moduleName = "USGSShared"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/melitski/Documents/USGS/USGSShared/SharedViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "36"
+                  endingLineNumber = "36">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
