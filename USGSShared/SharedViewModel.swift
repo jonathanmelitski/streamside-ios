@@ -19,9 +19,11 @@ public class SharedViewModel: ObservableObject {
     @Published public var selectedTab: SharedViewModel.Tab = .conditions
     @Published public var selectedLocation: String? = nil
     
+    static let data = UserDefaults(suiteName: "group.com.jmelitski.USGS")
+    
     
     init() {
-        let locs = (UserDefaults.standard.array(forKey: Self.favoritesKey) as? [String]) ?? []
+        let locs = self.getLocs() ?? []
         self.favoriteLocations = locs
         
         if let first = self.favoriteLocations.first {
@@ -31,7 +33,7 @@ public class SharedViewModel: ObservableObject {
     
     public func addFavoriteLocation(_ id: String) {
         self.favoriteLocations.append(id)
-        UserDefaults.standard.set(favoriteLocations, forKey: Self.favoritesKey)
+        self.saveLocs()
         Task { @MainActor in
             let data = try? await NetworkManager.shared.getUSGSData(for: id)
             usgsData.updateValue(data, forKey: id)
@@ -45,7 +47,7 @@ public class SharedViewModel: ObservableObject {
         self.favoriteLocations.removeAll(where: { $0 == id })
         self.usgsData.removeValue(forKey: id)
         self.saveDict()
-        UserDefaults.standard.set(favoriteLocations, forKey: Self.favoritesKey)
+        self.saveLocs()
     }
     
     public enum Tab {
@@ -95,15 +97,30 @@ public class SharedViewModel: ObservableObject {
         }
     }
     
+    func saveLocs() {
+        let enc = JSONEncoder()
+        let data = try? enc.encode(self.favoriteLocations)
+        Self.data?.set(data, forKey: Self.favoritesKey)
+        Self.data?.synchronize()
+    }
+    
+    func getLocs() -> [String]? {
+        guard let data = Self.data?.value(forKey: Self.favoritesKey) as? Data else {
+            return nil
+        }
+        let dec = JSONDecoder()
+        return try? dec.decode([String].self, from: data)
+    }
+    
     func saveDict() {
         let enc = JSONEncoder()
         let data = try? enc.encode(self.usgsData)
-        UserDefaults.standard.set(data, forKey: Self.cacheKey)
-        UserDefaults.standard.synchronize()
+        Self.data?.set(data, forKey: Self.cacheKey)
+        Self.data?.synchronize()
     }
     
     func getDict() -> [String: USGSData?]? {
-        guard let data = UserDefaults.standard.value(forKey: Self.cacheKey) as? Data else {
+        guard let data = Self.data?.value(forKey: Self.cacheKey) as? Data else {
             return nil
         }
         let dec = JSONDecoder()

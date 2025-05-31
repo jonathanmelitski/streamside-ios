@@ -5,6 +5,7 @@
 //  Created by Jonathan Melitski on 5/26/25.
 //
 import Foundation
+import UIKit
 
 public class NetworkManager {
     public static let shared = NetworkManager()
@@ -28,6 +29,19 @@ public class NetworkManager {
 // MARK: Data Structures + Decoding
 
 public struct USGSData: Codable {
+    public static var sampleData: USGSData {
+        let asset = NSDataAsset(name: "SampleUSGSData")!
+        let data = asset.data
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
+        dateFormatter.timeZone = TimeZone(identifier: "America/New_York")
+        let dec = JSONDecoder()
+        
+        dec.dateDecodingStrategy = .formatted(dateFormatter)
+        return try! dec.decode(USGSData.self, from: data)
+    }
+    
+    
     public static let cfsVariableCode = "00060"
     public static let tempVariableCode = "00010"
     

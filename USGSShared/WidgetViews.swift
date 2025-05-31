@@ -141,3 +141,15 @@ public struct MediumWidgetView: View {
         
     }
 }
+
+#Preview("Medium") {
+    MediumWidgetView(data: USGSData.sampleData)
+        .padding()
+        .frame(height: 150)
+        .background {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(LinearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom))
+        }
+        .padding()
+        .shadow(radius: 8)
+}

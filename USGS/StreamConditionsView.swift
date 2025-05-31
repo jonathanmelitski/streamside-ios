@@ -36,6 +36,7 @@ struct StreamConditionsView: View {
                                 }
                             }
                         }
+                        .padding()
                         .frame(height: 150)
                         .background {
                             RoundedRectangle(cornerRadius: 16)
