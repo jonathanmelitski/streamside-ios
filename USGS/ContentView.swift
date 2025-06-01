@@ -53,7 +53,7 @@ struct ContentView: View {
             }
 
             vm.selectedTab = .conditions
-            guard vm.usgsData.keys.contains(where: { $0 == locationId }) else { return }
+            guard vm.locationData.keys.contains(where: { $0 == locationId }) else { return }
             
             vm.selectedLocation = locationId
             

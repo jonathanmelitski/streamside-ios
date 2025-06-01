@@ -35,6 +35,10 @@ public struct USGSDataSourceValue: Codable {
     let values: [USGSDataSourceValueWhy]
 }
 
+public struct USGSDataSiteCode: Codable {
+    let value: String
+}
+
 public struct USGSDataSourceVariable: Codable {
     let name: String
     let description: String
@@ -49,6 +53,7 @@ public struct USGSDataSourceVariable: Codable {
 
 public struct USGSDataSourceInfo: Codable {
     let siteName: String
+    let siteCode: [USGSDataSiteCode]
     let geoLocation: USGSGeoLocation
 }
 

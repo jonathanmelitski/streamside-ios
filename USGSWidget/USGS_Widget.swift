@@ -34,7 +34,7 @@ struct Provider: AppIntentTimelineProvider {
 
 struct SimpleEntry: TimelineEntry {
     let date: Date
-    let data: USGSData?
+    let data: Location?
 }
 
 struct USGS_WidgetEntryView : View {

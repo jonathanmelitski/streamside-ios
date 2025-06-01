@@ -24,16 +24,15 @@ struct StreamConditionsView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     ForEach(vm.favoriteLocations, id: \.self) { el in
                         Group {
-                            if let kv = vm.usgsData.first(where: { $0.key == el }) {
-                                if let val = kv.value {
-                                    Button {
-                                        vm.selectedLocation = kv.key
-                                    } label: {
-                                        MediumWidgetView(data: val)
-                                    }
-                                } else {
-                                    Text("Unable to fetch data for \(el)")
+                            if let kv = vm.locationData.first(where: { $0.key == el }) {
+                                let val = kv.value
+                                Button {
+                                    vm.selectedLocation = kv.key
+                                } label: {
+                                    MediumWidgetView(data: val)
                                 }
+                            } else {
+                                Text("Unable to fetch data for \(el)")
                             }
                         }
                         .padding()

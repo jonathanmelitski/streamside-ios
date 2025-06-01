@@ -15,7 +15,7 @@ public class SharedViewModel: ObservableObject {
     static let cacheKey = "USGSApp-Data"
     
     @Published public private(set) var favoriteLocations: [String] = []
-    @Published public private(set) var usgsData: [String : USGSData?] = [:]
+    @Published public private(set) var locationData: [String : Location] = [:]
     @Published public var selectedTab: SharedViewModel.Tab = .conditions
     @Published public var selectedLocation: String? = nil
     
@@ -35,9 +35,10 @@ public class SharedViewModel: ObservableObject {
         self.favoriteLocations.append(id)
         self.saveLocs()
         Task { @MainActor in
-            let data = try? await NetworkManager.shared.getUSGSData(for: id)
-            usgsData.updateValue(data, forKey: id)
-            self.saveDict()
+            if let data = try? await self.fetchLocationData(id) {
+                self.locationData.updateValue(data, forKey: id)
+                self.saveDict()
+            }
         }
         
         
@@ -45,7 +46,7 @@ public class SharedViewModel: ObservableObject {
     
     public func removeFavoriteLocation(_ id: String) {
         self.favoriteLocations.removeAll(where: { $0 == id })
-        self.usgsData.removeValue(forKey: id)
+        self.locationData.removeValue(forKey: id)
         self.saveDict()
         self.saveLocs()
     }
@@ -58,39 +59,42 @@ public class SharedViewModel: ObservableObject {
         let dict = (self.getDict() ?? [:]).filter({ el in
             self.favoriteLocations.contains(where: { $0 == el.key })
         })
-        self.usgsData = dict
+        self.locationData = dict
         self.saveDict()
-        let keys = self.usgsData.keys
-        self.usgsData = await withTaskGroup(of: (String, USGSData?).self, returning: [String : USGSData?].self) { group in
+        let keys = self.locationData.keys
+        self.locationData = await withTaskGroup(of: (String, Location?).self, returning: [String : Location].self) { group in
             keys.forEach { key in
                 group.addTask {
-                    return (key, try? await NetworkManager.shared.getUSGSData(for: key))
+                    return (key, try? await self.fetchLocationData(key))
                 }
             }
             
-            var finalDict: [String: USGSData?] = [:]
+            var finalDict: [String: Location] = [:]
             for await result in group {
-                finalDict.updateValue(result.1, forKey: result.0)
+                if let loc = result.1 {
+                    finalDict.updateValue(loc, forKey: result.0)
+                }
             }
             return finalDict
         }
     }
     
     @discardableResult
-    @MainActor public func fetchLocationData(_ id: String) async throws -> USGSData {
+    @MainActor public func fetchLocationData(_ id: String) async throws -> Location {
         guard self.favoriteLocations.contains(where: { $0 == id }) else {
             throw USGSDataError.notInLocations
         }
-        
         let data = try await NetworkManager.shared.getUSGSData(for: id)
-        self.usgsData.updateValue(data, forKey: id)
-        self.saveDict()
-        return data
+        let locations = Location.getArray(from: data)
+        guard let location = locations.first(where: { $0.id == id }) else { throw USGSDataError.locationNotFound }
+        
+        return location
         
     }
     
     enum USGSDataError: String, LocalizedError {
         case notInLocations = "ILLEGAL STATE: You cannot request data for a location not in favorites (for now)"
+        case locationNotFound = "The specified location was not found in the returned data"
         
         var errorDescription: String? {
             return self.rawValue
@@ -114,17 +118,17 @@ public class SharedViewModel: ObservableObject {
     
     func saveDict() {
         let enc = JSONEncoder()
-        let data = try? enc.encode(self.usgsData)
+        let data = try? enc.encode(self.locationData)
         Self.data?.set(data, forKey: Self.cacheKey)
         Self.data?.synchronize()
     }
     
-    func getDict() -> [String: USGSData?]? {
+    func getDict() -> [String: Location]? {
         guard let data = Self.data?.value(forKey: Self.cacheKey) as? Data else {
             return nil
         }
         let dec = JSONDecoder()
-        return try? dec.decode([String: USGSData?].self, from: data)
+        return try? dec.decode([String: Location].self, from: data)
     }
     
 }

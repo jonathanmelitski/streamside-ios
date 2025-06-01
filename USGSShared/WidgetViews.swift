@@ -9,17 +9,16 @@ import SwiftUI
 import Charts
 
 public struct SmallWidgetView: View {
-    public let data: USGSData
+    public let data: Location
     
-    public init(data: USGSData) {
+    public init(data: Location) {
         self.data = data
     }
     
     public var body: some View {
         if let cfs = USGSDataSeries.cfs.getCurrentValueString(from: data),
            let temp = USGSDataSeries.temp.getCurrentValueString(from: data, modifier: USGSDataSeries.CtoFconversion),
-           let loc = data.locationName,
-           let locShort = loc.split(separator: " ").first {
+           let locShort = data.name.split(separator: " ").first {
             ZStack {
                 VStack {
                     Text(locShort.uppercased())
@@ -76,19 +75,18 @@ public struct SmallWidgetView: View {
 }
 
 public struct MediumWidgetView: View {
-    public let data: USGSData
+    public let data: Location
     
-    public init(data: USGSData) {
+    public init(data: Location) {
         self.data = data
     }
     
     public var body: some View {
         if let cfs = USGSDataSeries.cfs.getCurrentValueString(from: data),
-           let temp = USGSDataSeries.temp.getCurrentValueString(from: data, modifier: USGSDataSeries.CtoFconversion),
-           let loc = data.locationName {
+           let temp = USGSDataSeries.temp.getCurrentValueString(from: data, modifier: USGSDataSeries.CtoFconversion) {
             ZStack {
                 VStack {
-                    Text(loc
+                    Text(data.name
                         .uppercased())
                         .font(.caption)
                         .bold()
@@ -164,7 +162,7 @@ public struct MediumWidgetView: View {
 }
 
 #Preview("Medium") {
-    MediumWidgetView(data: USGSData.sampleData)
+    MediumWidgetView(data: Location.sampleData)
         .padding()
         .frame(height: 150)
         .background {
