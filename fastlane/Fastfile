@@ -30,6 +30,12 @@ platform :ios do
     build_app(
         scheme: "USGS",
         output_name: "USGS.ipa",
+        export_options: {
+            provisioningProfiles: {
+                "com.jmelitski.USGS" => "Main Distribution",
+                "com.jmelitski.USGS.USGS-Widget" => "Widget Distribution"
+            }
+        }
     )
   end
 
