@@ -25,10 +25,7 @@ jobs:
           ruby-version: '3.3.0'
           bundler-cache: true
       - name: Create fastlane API key json from updated key
-        run: |
-          cat << EOF > api_key.json
-          ${{ secrets.APP_STORE_CONNECT_API }}
-          EOF
+        run: echo ${{ secrets.APP_STORE_CONNECT_API }} | base64 --decode > AuthKey_ZDBJYHK8BH.p8
       - name: Build app
         run: bundle exec fastlane ci_build
       - name: Upload Artifacts
@@ -51,11 +48,8 @@ jobs:
         with:
           ruby-version: '3.3.0'
           bundler-cache: true
-      - name: Create fastlane API key json
-        run: |
-          cat << EOF > api_key.json
-          ${{ secrets.FASTLANE_JSON_KEY }}
-          EOF
+      - name: Create fastlane API key json from updated key
+        run: echo ${{ secrets.APP_STORE_CONNECT_API }} | base64 --decode > AuthKey_ZDBJYHK8BH.p8
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
