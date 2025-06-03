@@ -10,7 +10,6 @@
 		737FC4BF2DE6B66100F56288 /* USGSShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 737FC4B72DE6B66100F56288 /* USGSShared.framework */; };
 		737FC4C02DE6B66100F56288 /* USGSShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 737FC4B72DE6B66100F56288 /* USGSShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		737FC4DA2DE6BFFB00F56288 /* USGSShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 737FC4B72DE6B66100F56288 /* USGSShared.framework */; };
-		737FC4DB2DE6BFFB00F56288 /* USGSShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 737FC4B72DE6B66100F56288 /* USGSShared.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		73B4F1592DE5671900B305A7 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73B4F1582DE5671800B305A7 /* WidgetKit.framework */; };
 		73B4F15B2DE5671900B305A7 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73B4F15A2DE5671900B305A7 /* SwiftUI.framework */; };
 		73B4F16A2DE5671C00B305A7 /* USGS WidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 73B4F1562DE5671800B305A7 /* USGS WidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -58,17 +57,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				737FC4C02DE6B66100F56288 /* USGSShared.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		737FC4DE2DE6BFFB00F56288 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				737FC4DB2DE6BFFB00F56288 /* USGSShared.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -290,7 +278,6 @@
 				73B4F1522DE5671800B305A7 /* Sources */,
 				73B4F1532DE5671800B305A7 /* Frameworks */,
 				73B4F1542DE5671800B305A7 /* Resources */,
-				737FC4DE2DE6BFFB00F56288 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -618,6 +605,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = USGS/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Streamside;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -649,6 +637,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = USGS/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Streamside;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
