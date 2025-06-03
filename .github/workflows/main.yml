@@ -36,8 +36,8 @@ jobs:
         run: |
           # create variables
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-          PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
-          PP_WIDGET_PATH=$RUNNER_TEMP/build_pp_widget.mobileprovision
+          PP_PATH=./build_pp.mobileprovision
+          PP_WIDGET_PATH=./build_pp_widget.mobileprovision
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
           # import certificate and provisioning profile from secrets
