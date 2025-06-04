@@ -88,8 +88,7 @@ public struct MediumWidgetView: View {
                 VStack {
                     Text(data.name
                         .uppercased())
-                        .font(.caption)
-                        .bold()
+                        .font(.system(size: 12, weight: .bold))
                         .shadow(radius: 4)
                         .foregroundStyle(.white)
                         .padding()
@@ -119,6 +118,7 @@ public struct MediumWidgetView: View {
                         AxisMarks(values: .stride(by: Calendar.Component.day, count: 2)) {
                             AxisValueLabel()
                                 .foregroundStyle(Color("GraphAxisForeground"))
+                                .font(.system(size: 10))
                             AxisGridLine(stroke: StrokeStyle(lineWidth: 0.2, dash: [3]))
                                 .foregroundStyle(Color("GraphAxisForeground"))
                             AxisTick(stroke: StrokeStyle(lineWidth: 0.2, dash: [3]))
@@ -131,23 +131,19 @@ public struct MediumWidgetView: View {
                 HStack(spacing: 32) {
                     VStack(spacing: 2) {
                         Text(temp)
-                            .font(.largeTitle)
-                            .bold()
+                            .font(.system(size: 36, weight: .bold))
                             .shadow(radius: 8)
                         Text("TEMP")
-                            .font(.caption)
-                            .bold()
+                            .font(.system(size: 12, weight: .bold))
                             .shadow(radius: 4)
                     }
                     
                     VStack(spacing: 2) {
                         Text(cfs)
-                            .font(.largeTitle)
-                            .bold()
+                            .font(.system(size: 36, weight: .bold))
                             .shadow(radius: 8)
                         Text("CFS")
-                            .font(.caption)
-                            .bold()
+                            .font(.system(size: 12, weight: .bold))
                             .shadow(radius: 4)
                     }
                 }

@@ -39,7 +39,7 @@ platform :ios do
     )
   end
 
-  lane :ci_pilot do
+  lane :ci_pilot do |options|
     api_key = app_store_connect_api_key(
       key_id: "ZDBJYHK8BH",
       issuer_id: "c64633b3-fd72-407e-b8c7-5ce559ab5952",
@@ -49,8 +49,8 @@ platform :ios do
       app_identifier: "com.jmelitski.USGS",
       api_key: api_key,
       ipa: "USGS.ipa",
-      changelog: "Test experimental features of Streamside",
-      beta_app_description: "Test experimental features of Streamside",
+      changelog: options[:changelog],
+      beta_app_description: options[:description],
       beta_app_feedback_email: "jonathanmelitski@gmail.com"
     )
   end
