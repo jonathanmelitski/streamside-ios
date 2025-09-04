@@ -10,6 +10,7 @@
 		737FC4BF2DE6B66100F56288 /* USGSShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 737FC4B72DE6B66100F56288 /* USGSShared.framework */; };
 		737FC4C02DE6B66100F56288 /* USGSShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 737FC4B72DE6B66100F56288 /* USGSShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		737FC4DA2DE6BFFB00F56288 /* USGSShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 737FC4B72DE6B66100F56288 /* USGSShared.framework */; };
+		73A0E72B2E22BB2C0019F8FD /* DotLottie in Frameworks */ = {isa = PBXBuildFile; productRef = 73A0E72A2E22BB2C0019F8FD /* DotLottie */; };
 		73B4F1592DE5671900B305A7 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73B4F1582DE5671800B305A7 /* WidgetKit.framework */; };
 		73B4F15B2DE5671900B305A7 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73B4F15A2DE5671900B305A7 /* SwiftUI.framework */; };
 		73B4F16A2DE5671C00B305A7 /* USGS WidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 73B4F1562DE5671800B305A7 /* USGS WidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -162,6 +163,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				737FC4BF2DE6B66100F56288 /* USGSShared.framework in Frameworks */,
+				73A0E72B2E22BB2C0019F8FD /* DotLottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -266,6 +268,7 @@
 			);
 			name = USGS;
 			packageProductDependencies = (
+				73A0E72A2E22BB2C0019F8FD /* DotLottie */,
 			);
 			productName = USGS;
 			productReference = 73B4F1412DE566F600B305A7 /* USGS.app */;
@@ -324,6 +327,9 @@
 			);
 			mainGroup = 73B4F1382DE566F600B305A7;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				73A0E7292E22BB2C0019F8FD /* XCRemoteSwiftPackageReference "dotlottie-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 73B4F1422DE566F600B305A7 /* Products */;
 			projectDirPath = "";
@@ -418,7 +424,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -455,7 +461,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -617,7 +623,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -655,7 +661,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -686,7 +692,7 @@
 				INFOPLIST_FILE = USGSWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "USGS Widget";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -720,7 +726,7 @@
 				INFOPLIST_FILE = USGSWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "USGS Widget";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -778,6 +784,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		73A0E7292E22BB2C0019F8FD /* XCRemoteSwiftPackageReference "dotlottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/LottieFiles/dotlottie-ios";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		73A0E72A2E22BB2C0019F8FD /* DotLottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73A0E7292E22BB2C0019F8FD /* XCRemoteSwiftPackageReference "dotlottie-ios" */;
+			productName = DotLottie;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 73B4F1392DE566F600B305A7 /* Project object */;
 }
