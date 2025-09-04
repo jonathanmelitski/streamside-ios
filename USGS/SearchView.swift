@@ -19,77 +19,91 @@ struct SearchView: View {
     @State var alertText: String? = nil
     
     var body: some View {
-        let presentAlert = Binding(get: {
-            alertText != nil
-        }, set: { newValue in
-            if !newValue {
-                alertText = nil
-            }
-        })
+//        let presentAlert = Binding(get: {
+//            alertText != nil
+//        }, set: { newValue in
+//            if !newValue {
+//                alertText = nil
+//            }
+//        })
         
-        ZStack {
-            Map {
-                ForEach(locations ?? [], id: \.id) { location in
-                    Marker(coordinate: .init(latitude: location.location.latitude, longitude: location.location.longitude)) {
-                        Text(location.name)
-                    }
-                }
-            }
-            .onMapCameraChange { ctx in
-                camera = ctx.region
-                allowNewSearch = true
-            }
-            
-            if searching {
-                ProgressView()
-                    .padding()
-                    .background {
-                        RoundedRectangle(cornerRadius: 16)
-                    }
-            }
-            
-            if allowNewSearch {
-                VStack {
-                    Spacer()
-                    Button {
-                        self.vm.addFavoriteLocation("04250200")
-                        self.allowNewSearch = false
-                        
-//                        self.searching = true
-//                        if let camera {
-//                            let north = camera.center.latitude + camera.span.latitudeDelta / 2
-//                            let south = camera.center.latitude - camera.span.latitudeDelta / 2
-//                            let east = camera.center.longitude + camera.span.longitudeDelta / 2
-//                            let west = camera.center.longitude - camera.span.longitudeDelta / 2
-//                            
-//                            Task {
-//                                if let data = try? await NetworkManager.shared.getUSGSLocations(in: .init(northernLat: north, southernLat: south, easternLong: east, westernLong: west)) {
-//                                    withAnimation {
-//                                        self.locations = Location.getArray(from: data)
-//                                    }
-//                                } else {
-//                                    alertText = "Unable to fetch location data. Try a smaller area or check your connection."
-//                                }
-//                                self.searching = false
+//        ZStack {
+//            Map {
+//                ForEach(locations ?? [], id: \.id) { location in
+//                    Marker(coordinate: .init(latitude: location.location.latitude, longitude: location.location.longitude)) {
+//                        Text(location.name)
+//                    }
+//                }
+//            }
+//            .onMapCameraChange { ctx in
+//                camera = ctx.region
+//                allowNewSearch = true
+//            }
+//            
+//            if searching {
+//                ProgressView()
+//                    .padding()
+//                    .background {
+//                        RoundedRectangle(cornerRadius: 16)
+//                    }
+//            }
+//            
+//            if allowNewSearch {
+//                VStack {
+//                    Spacer()
+//                    Button {
+//                        self.vm.addFavoriteLocation("04250200")
+//                        self.allowNewSearch = false
+//                        
+////                        self.searching = true
+////                        if let camera {
+////                            let north = camera.center.latitude + camera.span.latitudeDelta / 2
+////                            let south = camera.center.latitude - camera.span.latitudeDelta / 2
+////                            let east = camera.center.longitude + camera.span.longitudeDelta / 2
+////                            let west = camera.center.longitude - camera.span.longitudeDelta / 2
+////                            
+////                            Task {
+////                                if let data = try? await NetworkManager.shared.getUSGSLocations(in: .init(northernLat: north, southernLat: south, easternLong: east, westernLong: west)) {
+////                                    withAnimation {
+////                                        self.locations = Location.getArray(from: data)
+////                                    }
+////                                } else {
+////                                    alertText = "Unable to fetch location data. Try a smaller area or check your connection."
+////                                }
+////                                self.searching = false
+////                            }
+//      //                  }
+//                    } label: {
+//                        Text("Load Add Salmon")
+//                            .foregroundStyle(.black)
+//                            .padding()
+//                            .background {
+//                                RoundedRectangle(cornerRadius: 16)
+//                                    .foregroundStyle(.ultraThickMaterial)
 //                            }
-      //                  }
-                    } label: {
-                        Text("Load Add Salmon")
-                            .foregroundStyle(.black)
-                            .padding()
-                            .background {
-                                RoundedRectangle(cornerRadius: 16)
-                                    .foregroundStyle(.ultraThickMaterial)
-                            }
-                    }
-                    .padding()
-                }
+//                    }
+//                    .padding()
+//                }
+//            }
+//        }
+        VStack {
+            Button {
+                vm.addFavoriteLocation("04250200")
+                vm.addFavoriteLocation("01420500")
+            } label: {
+                Text("Add Salmon and Beaver")
+            }
+            .buttonStyle(.borderedProminent)
+            Button {
+                vm.removeFavoriteLocation("04250200")
+                vm.removeFavoriteLocation("01420500")
+            } label: {
+                Text("Remove All")
             }
         }
-        
-        .alert(isPresented: presentAlert) {
-            Alert(title: Text("Error"))
-        }
+//        .alert(isPresented: presentAlert) {
+//            Alert(title: Text("Error"))
+//        }
         
 //        Text("SearchView")
 //            .onTapGesture {

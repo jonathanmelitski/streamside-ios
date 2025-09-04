@@ -19,7 +19,7 @@ struct Provider: AppIntentTimelineProvider {
     }
     
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        let fetchedData = try? await SharedViewModel.shared.fetchLocationData("01420500")
+        let fetchedData = try? await SharedViewModel.shared.fetchLocationData(configuration.location?.id ?? "")
         let currentDate = Date()
         let entry = SimpleEntry(date: currentDate, data: fetchedData)
         let nextRefresh = Calendar.current.date(byAdding: .minute, value: 15, to: currentDate)!
@@ -45,10 +45,10 @@ struct USGS_WidgetEntryView : View {
             switch family {
             case .systemMedium:
                 MediumWidgetView(data: data)
-                    .widgetURL(URL(string: "usgswidget://open-conditions?id=\("01420500")")!)
+                    .widgetURL(URL(string: "usgswidget://open-conditions?id=\(data.id)")!)
             case .systemSmall:
                 SmallWidgetView(data: data)
-                    .widgetURL(URL(string: "usgswidget://open-conditions?id=\("01420500")")!)
+                    .widgetURL(URL(string: "usgswidget://open-conditions?id=\(data.id)")!)
             default:
                 Text("Invalid Widget Format")
             }
@@ -61,6 +61,14 @@ struct USGS_WidgetEntryView : View {
 
 struct USGS_Widget: Widget {
     let kind: String = "USGS_Widget"
+    let id: String
+    init() {
+        self.id = ""
+    }
+    
+    init(_ id: String) {
+        self.id = id
+    }
 
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
@@ -68,6 +76,7 @@ struct USGS_Widget: Widget {
                 .containerBackground(.linearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom), for: .widget)
                 
         }
+        .configurationDisplayName(id)
         .supportedFamilies([.systemMedium, .systemSmall])
     }
 }

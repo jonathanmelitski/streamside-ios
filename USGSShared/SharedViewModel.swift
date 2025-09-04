@@ -24,7 +24,9 @@ public class SharedViewModel: ObservableObject {
     
     init() {
         let locs = self.getLocs() ?? []
+        let dict = self.getDict() ?? [:]
         self.favoriteLocations = locs
+        self.locationData = dict
         
         if let first = self.favoriteLocations.first {
             selectedTab = .locations

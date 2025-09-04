@@ -82,19 +82,8 @@ public struct MediumWidgetView: View {
     }
     
     public var body: some View {
-        if let cfs = USGSDataSeries.cfs.getCurrentValueString(from: data),
-           let temp = USGSDataSeries.temp.getCurrentValueString(from: data, modifier: USGSDataSeries.CtoFconversion) {
-            ZStack {
-                VStack {
-                    Text(data.name
-                        .uppercased())
-                        .font(.system(size: 12, weight: .bold))
-                        .shadow(radius: 4)
-                        .foregroundStyle(.white)
-                        .padding()
-                    Spacer()
-                }
-                
+        ZStack {
+            if let cfs = USGSDataSeries.cfs.getCurrentValueString(from: data) {
                 VStack {
                     Spacer()
                     Chart {
@@ -127,8 +116,18 @@ public struct MediumWidgetView: View {
                     }
                     .frame(height: 75)
                 }
-                
-                HStack(spacing: 32) {
+            }
+            VStack {
+                Text(data.name
+                    .uppercased())
+                    .font(.system(size: 12, weight: .bold))
+                    .shadow(radius: 4)
+                    .foregroundStyle(.white)
+                    .padding()
+                Spacer()
+            }
+            HStack(spacing: 32) {
+                if let temp = USGSDataSeries.temp.getCurrentValueString(from: data, modifier: USGSDataSeries.CtoFconversion) {
                     VStack(spacing: 2) {
                         Text(temp)
                             .font(.system(size: 36, weight: .bold))
@@ -137,7 +136,9 @@ public struct MediumWidgetView: View {
                             .font(.system(size: 12, weight: .bold))
                             .shadow(radius: 4)
                     }
-                    
+                }
+                
+                if let cfs = USGSDataSeries.cfs.getCurrentValueString(from: data) {
                     VStack(spacing: 2) {
                         Text(cfs)
                             .font(.system(size: 36, weight: .bold))
@@ -147,13 +148,9 @@ public struct MediumWidgetView: View {
                             .shadow(radius: 4)
                     }
                 }
-                .foregroundStyle(.white)
-                
             }
-        } else {
-            Text("Unable to fetch data")
         }
-        
+        .foregroundStyle(.white)
     }
 }
 
