@@ -15,11 +15,12 @@ struct Provider: AppIntentTimelineProvider {
     }
 
     func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
-        SimpleEntry(date: Date(), data: nil)
+        SimpleEntry(date: Date(), data: configuration.location)
     }
     
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        let fetchedData = try? await SharedViewModel.shared.fetchLocationData(configuration.location?.id ?? "")
+        await SharedViewModel.shared.refreshData()
+        let fetchedData = SharedViewModel.shared.locationData[configuration.location?.id ?? ""]
         let currentDate = Date()
         let entry = SimpleEntry(date: currentDate, data: fetchedData)
         let nextRefresh = Calendar.current.date(byAdding: .minute, value: 15, to: currentDate)!
@@ -54,21 +55,24 @@ struct USGS_WidgetEntryView : View {
             }
                 
         } else {
-            Text("Unable to fetch data")
+            let data = Location.sampleData
+            
+            switch family {
+            case .systemMedium:
+                MediumWidgetView(data: data)
+                    .redacted(reason: .placeholder)
+            case .systemSmall:
+                SmallWidgetView(data: data)
+                    .redacted(reason: .placeholder)
+            default:
+                Text("InvalidWidgetFormat")
+            }
         }
     }
 }
 
 struct USGS_Widget: Widget {
     let kind: String = "USGS_Widget"
-    let id: String
-    init() {
-        self.id = ""
-    }
-    
-    init(_ id: String) {
-        self.id = id
-    }
 
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
@@ -76,7 +80,7 @@ struct USGS_Widget: Widget {
                 .containerBackground(.linearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom), for: .widget)
                 
         }
-        .configurationDisplayName(id)
+        .configurationDisplayName("Stream Data")
         .supportedFamilies([.systemMedium, .systemSmall])
     }
 }

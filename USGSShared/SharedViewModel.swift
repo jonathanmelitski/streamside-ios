@@ -135,7 +135,7 @@ public class SharedViewModel: ObservableObject {
         Self.data?.set(data, forKey: Self.cacheKey)
         Self.data?.synchronize()
         
-        WidgetCenter.shared.reloadAllTimelines()
+        WidgetCenter.shared.reloadTimelines(ofKind: "USGS_Widget")
     }
     
     func getDict() -> [String: Location]? {
