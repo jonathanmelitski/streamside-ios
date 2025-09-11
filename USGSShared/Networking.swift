@@ -22,9 +22,6 @@ public class NetworkManager {
         
         dec.dateDecodingStrategy = .formatted(dateFormatter)
         return try dec.decode(USGSData.self, from: data)
-        
-        
-        
     }
     
     public func getUSGSLocations(in region: USGSBoundingBox) async throws -> USGSData {

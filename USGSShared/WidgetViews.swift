@@ -16,9 +16,7 @@ public struct SmallWidgetView: View {
     }
     
     public var body: some View {
-        if let cfs = USGSDataSeries.cfs.getCurrentValueString(from: data),
-           let temp = USGSDataSeries.temp.getCurrentValueString(from: data, modifier: USGSDataSeries.CtoFconversion),
-           let locShort = data.name.split(separator: " ").first {
+        if let locShort = data.name.split(separator: " ").first {
             ZStack {
                 VStack {
                     Text(locShort.uppercased())
@@ -30,43 +28,37 @@ public struct SmallWidgetView: View {
                 
                 VStack {
                     Spacer()
-                    Chart(USGSDataSeries.cfs.getAllValues(from: data) ?? []) { point in
-                        if let val = Double(point.value) {
-                            LineMark(
-                                x: .value("Date", point.date),
-                                y: .value("Value", val)
-                            )
-                        }
-                    }
-                    .chartYScale(domain: .automatic(includesZero: false))
-                    .chartYAxis(.hidden)
-                    .chartXAxis(.hidden)
-                    .frame(height: 40)
+//                    Chart(USGSDataSeries.cfs.getAllValues(from: data) ?? []) { point in
+//                        if let val = Double(point.value) {
+//                            LineMark(
+//                                x: .value("Date", point.date),
+//                                y: .value("Value", val)
+//                            )
+//                        }
+//                    }
+//                    .chartYScale(domain: .automatic(includesZero: false))
+//                    .chartYAxis(.hidden)
+//                    .chartXAxis(.hidden)
+//                    .frame(height: 40)
                 }
                 
-                VStack {
-                    HStack(spacing: 24) {
-                        VStack(spacing: 2) {
-                            Text(temp)
-                                .font(.title2)
-                                .bold()
-                                .shadow(radius: 8)
-                            Text("TEMP")
-                                .font(.caption)
-                                .bold()
-                                .shadow(radius: 4)
+                HStack {
+                    ForEach(data.metrics, id: \.descriptor.code) { metric in
+                        Spacer()
+                        if let val = metric.descriptorSpecificCurrentValueString {
+                            VStack(spacing: 2) {
+                                Text(val)
+                                    .font(.title2)
+                                    .bold()
+                                    .shadow(radius: 8)
+                                Text("TEMP")
+                                    .font(.caption)
+                                    .bold()
+                                    .shadow(radius: 4)
+                            }
+                            Spacer()
                         }
                         
-                        VStack(spacing: 2) {
-                            Text(cfs)
-                                .font(.title2)
-                                .bold()
-                                .shadow(radius: 8)
-                            Text("CFS")
-                                .font(.caption)
-                                .bold()
-                                .shadow(radius: 4)
-                        }
                     }
                 }
             }
@@ -83,39 +75,38 @@ public struct MediumWidgetView: View {
     
     public var body: some View {
         ZStack {
-            if let cfs = USGSDataSeries.cfs.getCurrentValueString(from: data) {
-                VStack {
-                    Spacer()
-                    Chart {
-                        ForEach(data.settings.graphSettings.series) { series in
-                            ForEach(series.usgsGraphedElement.getAllValues(from: data) ?? []) { point in
-                                if let val = Double(point.value) {
+            VStack {
+                Spacer()
+                Chart {
+                    ForEach(data.settings.graphSettings.series) { series in
+                        if let metric = data.metrics.first(where: { $0.descriptor == series.usgsGraphedElement }) {
+                            ForEach(metric.descriptorSpecificValues) { value in
+                                if let val = Double(value.value) {
                                     LineMark(
-                                        x: .value("Date", point.date),
+                                        x: .value("Date", value.date),
                                         y: .value("Value", val),
-                                        series: .value("Value", series.usgsGraphedElement.rawValue)
-                                    )
-                                    .foregroundStyle(series.graphForegroundColor.toSwiftUIColor)
+                                        series: .value("Metric", metric.descriptor.name ?? ""))
+                                        .foregroundStyle(series.graphForegroundColor.toSwiftUIColor)
                                 }
                             }
                         }
                     }
-                    .chartYScale(domain: .automatic(includesZero: false))
-                    .chartYAxis(.hidden)
-                    .chartXAxis(.visible)
-                    .chartXAxis {
-                        AxisMarks(values: .stride(by: Calendar.Component.day, count: 2)) {
-                            AxisValueLabel()
-                                .foregroundStyle(Color("GraphAxisForeground"))
-                                .font(.system(size: 10))
-                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.2, dash: [3]))
-                                .foregroundStyle(Color("GraphAxisForeground"))
-                            AxisTick(stroke: StrokeStyle(lineWidth: 0.2, dash: [3]))
-                                .foregroundStyle(Color("GraphAxisForeground"))
-                        }
-                    }
-                    .frame(height: 75)
                 }
+                .chartYScale(domain: .automatic(includesZero: false))
+                .chartYAxis(.hidden)
+                .chartXAxis(.visible)
+                .chartXAxis {
+                    AxisMarks(values: .stride(by: Calendar.Component.day, count: 2)) {
+                        AxisValueLabel()
+                            .foregroundStyle(Color("GraphAxisForeground"))
+                            .font(.system(size: 10))
+                        AxisGridLine(stroke: StrokeStyle(lineWidth: 0.2, dash: [3]))
+                            .foregroundStyle(Color("GraphAxisForeground"))
+                        AxisTick(stroke: StrokeStyle(lineWidth: 0.2, dash: [3]))
+                            .foregroundStyle(Color("GraphAxisForeground"))
+                    }
+                }
+                .frame(height: 75)
             }
             VStack {
                 Text(data.name
@@ -126,26 +117,20 @@ public struct MediumWidgetView: View {
                     .padding()
                 Spacer()
             }
-            HStack(spacing: 32) {
-                if let temp = USGSDataSeries.temp.getCurrentValueString(from: data, modifier: USGSDataSeries.CtoFconversion) {
-                    VStack(spacing: 2) {
-                        Text(temp)
-                            .font(.system(size: 36, weight: .bold))
-                            .shadow(radius: 8)
-                        Text("TEMP")
-                            .font(.system(size: 12, weight: .bold))
-                            .shadow(radius: 4)
-                    }
-                }
-                
-                if let cfs = USGSDataSeries.cfs.getCurrentValueString(from: data) {
-                    VStack(spacing: 2) {
-                        Text(cfs)
-                            .font(.system(size: 36, weight: .bold))
-                            .shadow(radius: 8)
-                        Text("CFS")
-                            .font(.system(size: 12, weight: .bold))
-                            .shadow(radius: 4)
+            HStack {
+                ForEach(data.settings.displaySettings.valuesToShow, id: \.code) { descriptor in
+                    Spacer()
+                    if let metric = data.metrics.first(where: { $0.descriptor.code == descriptor.code }),
+                       let val = metric.descriptorSpecificCurrentValueString {
+                        VStack(spacing: 2) {
+                            Text(val)
+                                .font(.system(size: 36, weight: .bold))
+                                .shadow(radius: 8)
+                            Text(metric.descriptorSpecificLabelShort)
+                                .font(.system(size: 12, weight: .bold))
+                                .shadow(radius: 4)
+                        }
+                        Spacer()
                     }
                 }
             }

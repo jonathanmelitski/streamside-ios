@@ -13,19 +13,23 @@ struct ContentView: View {
     @ObservedObject var vm = SharedViewModel.shared
     
     var body: some View {
-        TabView(selection: $vm.selectedTab) {
-            Tab("Search", systemImage: "magnifyingglass", value: .locations) {
-                SearchView()
+        NavigationStack(path: $vm.nav) {
+            TabView(selection: $vm.selectedTab) {
+                Tab("Search", systemImage: "magnifyingglass", value: .locations) {
+                    SearchView()
+                }
+                Tab("Conditions", systemImage: "figure.fishing", value: .conditions) {
+                    StreamConditionsView()
+                }
+                Tab("Options", systemImage: "gear", value: .settings) {
+                    Text("Settings!")
+                }
             }
-            Tab("Conditions", systemImage: "figure.fishing", value: .conditions) {
-                StreamConditionsView()
-            }
-            Tab("Options", systemImage: "gear", value: .settings) {
-                Text("Settings!")
+            .tabViewStyle(.sidebarAdaptable)
+            .navigationDestination(for: Location.self) { loc in
+                StreamConditionsFullscreenView(location: loc)
             }
         }
-        
-        .tabViewStyle(.sidebarAdaptable)
         .environmentObject(vm)
         .onAppear {
             Task {
@@ -51,11 +55,11 @@ struct ContentView: View {
                 print("Location not found")
                 return
             }
-
-            vm.selectedTab = .conditions
-            guard vm.locationData.keys.contains(where: { $0 == locationId }) else { return }
             
-            vm.selectedLocation = locationId
+            vm.selectedTab = .conditions
+            if let loc = vm.locationData[locationId] {
+                vm.nav.append(loc)
+            }
             
         }
     }

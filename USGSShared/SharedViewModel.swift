@@ -7,6 +7,8 @@
 
 import Foundation
 import Combine
+import SwiftUI
+import WidgetKit
 
 public class SharedViewModel: ObservableObject {
     public static var shared = SharedViewModel()
@@ -17,7 +19,7 @@ public class SharedViewModel: ObservableObject {
     @Published public private(set) var favoriteLocations: [String] = []
     @Published public private(set) var locationData: [String : Location] = [:]
     @Published public var selectedTab: SharedViewModel.Tab = .conditions
-    @Published public var selectedLocation: String? = nil
+    @Published public var nav: NavigationPath = .init()
     
     static let data = UserDefaults(suiteName: "group.com.jmelitski.USGS")
     
@@ -25,11 +27,16 @@ public class SharedViewModel: ObservableObject {
     init() {
         let locs = self.getLocs() ?? []
         let dict = self.getDict() ?? [:]
+        
         self.favoriteLocations = locs
         self.locationData = dict
         
         if let first = self.favoriteLocations.first {
             selectedTab = .locations
+        }
+        
+        Task { @MainActor in
+            await self.refreshData()
         }
     }
     
@@ -42,8 +49,6 @@ public class SharedViewModel: ObservableObject {
                 self.saveDict()
             }
         }
-        
-        
     }
     
     public func removeFavoriteLocation(_ id: String) {
@@ -53,17 +58,23 @@ public class SharedViewModel: ObservableObject {
         self.saveLocs()
     }
     
+    public func saveLocationData(_ data: Location, for id: String) {
+        self.locationData.updateValue(data, forKey: id)
+        self.saveDict()
+    }
+    
     public enum Tab {
         case conditions, settings, locations
     }
     
     @MainActor public func refreshData() async {
+        
         let dict = (self.getDict() ?? [:]).filter({ el in
             self.favoriteLocations.contains(where: { $0 == el.key })
         })
         self.locationData = dict
         self.saveDict()
-        let keys = self.locationData.keys
+        let keys = self.favoriteLocations
         self.locationData = await withTaskGroup(of: (String, Location?).self, returning: [String : Location].self) { group in
             keys.forEach { key in
                 group.addTask {
@@ -79,6 +90,7 @@ public class SharedViewModel: ObservableObject {
             }
             return finalDict
         }
+        self.saveDict()
     }
     
     @discardableResult
@@ -89,7 +101,6 @@ public class SharedViewModel: ObservableObject {
         let data = try await NetworkManager.shared.getUSGSData(for: id)
         let locations = Location.getArray(from: data)
         guard let location = locations.first(where: { $0.id == id }) else { throw USGSDataError.locationNotFound }
-        
         return location
         
     }
@@ -123,6 +134,8 @@ public class SharedViewModel: ObservableObject {
         let data = try? enc.encode(self.locationData)
         Self.data?.set(data, forKey: Self.cacheKey)
         Self.data?.synchronize()
+        
+        WidgetCenter.shared.reloadAllTimelines()
     }
     
     func getDict() -> [String: Location]? {

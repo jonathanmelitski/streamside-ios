@@ -11,47 +11,30 @@ import USGSShared
 struct StreamConditionsView: View {
     @EnvironmentObject var vm: SharedViewModel
     
-    
     var body: some View {
-        let showSheet = Binding(get: { vm.selectedLocation != nil }, set: { new in
-            if !new {
-                vm.selectedLocation = nil
-            }
-        })
-        
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(vm.favoriteLocations, id: \.self) { el in
-                        Group {
-                            if let kv = vm.locationData.first(where: { $0.key == el }) {
-                                let val = kv.value
-                                Button {
-                                    vm.selectedLocation = kv.key
-                                } label: {
-                                    MediumWidgetView(data: val)
-                                }
-                            } else {
-                                Text("Unable to fetch data for \(el)")
+        ScrollView {
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(vm.favoriteLocations, id: \.self) { el in
+                    Group {
+                        if let kv = vm.locationData.first(where: { $0.key == el }) {
+                            let val = kv.value
+                            NavigationLink(value: val) {
+                                MediumWidgetView(data: val)
                             }
+                        } else {
+                            Text("Unable to fetch data for \(el)")
                         }
-                        .padding()
-                        .frame(height: 150)
-                        .background {
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(LinearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom))
-                        }
-                        .padding()
-                        .shadow(radius: 8)
                     }
+                    .padding()
+                    .frame(height: 150)
+                    .background {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(LinearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom))
+                    }
+                    .padding()
+                    .shadow(radius: 8)
                 }
-                .navigationTitle("My Locations")
-                .navigationBarTitleDisplayMode(.large)
-            }
-            .sheet(isPresented: showSheet) {
-                StreamConditionsFullscreenView()
             }
         }
-        
     }
 }

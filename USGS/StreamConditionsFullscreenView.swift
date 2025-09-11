@@ -7,69 +7,173 @@
 
 import SwiftUI
 import USGSShared
+import MapKit
 
 struct StreamConditionsFullscreenView: View {
-    @EnvironmentObject var vm: SharedViewModel
+    @State var location: Location
     
     static let mainDimension: CGFloat = 140
+    @State var mapFocused = false
+    @State var cameraPosition: MapCameraPosition
+    
+    init(location: Location) {
+        self.location = location
+        self.mapFocused = false
+        self.cameraPosition = .camera(.init(centerCoordinate: CLLocationCoordinate2D(latitude: location.location.latitude, longitude: location.location.longitude), distance: 5000))
+    }
     
     var body: some View {
         // Two-way body with divider. ultra thick
         ZStack {
-            Rectangle()
-                .fill(LinearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom))
-            VStack {
-                HStack(alignment: .center, spacing: 0) {
-                    Spacer()
-                    if let loc = vm.locationData.first(where: { $0.key == vm.selectedLocation }) {
-                        let value = loc.1
-                        if let temp = USGSDataSeries.temp.getCurrentValueString(from: value, modifier: USGSDataSeries.CtoFconversion) {
-                            HighlightedDataPointView(primary: temp, subtitle: "Water Temp (°F)")
-                                .frame(width: Self.mainDimension, height: Self.mainDimension)
-                            Spacer()
-                        }
-                        Divider()
-                        if let cfs = USGSDataSeries.cfs.getCurrentValueString(from: value) {
-                            Spacer()
-                            HighlightedDataPointView(primary: cfs, subtitle: "Flow Rate (cfs)")
-                                .frame(width: Self.mainDimension, height: Self.mainDimension)
-                        }
-                    }
-                        
-                    Spacer()
+            Map(position: $cameraPosition)
+                .ignoresSafeArea()
+                .disabled(!mapFocused)
+                .blur(radius: mapFocused ? 0 : 6)
+            if !mapFocused {
+                ScrollView {
+                    StreamConditionsDetailViewStack(location: $location)
                 }
-                .frame(height: Self.mainDimension)
-                .padding(.vertical)
-                .background {
-                    RoundedRectangle(cornerRadius: 16)
-                        .foregroundStyle(.thinMaterial)
-                }
-                .padding()
             }
-            
         }
-        .ignoresSafeArea()
-    }
-}
-
-struct HighlightedDataPointView: View {
-    let primary: String
-    let subtitle: String
-    
-    var body: some View {
-        ZStack {
-            Text(primary)
-                .font(.system(size: 56))
-                .bold()
-            VStack {
-                Spacer()
-                Text(subtitle.uppercased())
-                    .multilineTextAlignment(.center)
-                    .font(.headline)
+        .onChange(of: cameraPosition) {
+            guard cameraPosition != .camera(.init(centerCoordinate: CLLocationCoordinate2D(latitude: location.location.latitude, longitude: location.location.longitude), distance: 5000)) else { return }
+            withAnimation {
+                mapFocused = true
+            }
+        }
+        .onChange(of: location) {
+            SharedViewModel.shared.saveLocationData(location, for: location.id)
+            // potentially invalidate widget?
+        }
+        .toolbar {
+            if mapFocused {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        withAnimation {
+                            self.cameraPosition = .camera(.init(centerCoordinate: CLLocationCoordinate2D(latitude: location.location.latitude, longitude: location.location.longitude), distance: 5000))
+                            
+                        } completion: {
+                            withAnimation {
+                                self.mapFocused = false
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "info.circle.text.page")
+                    }
+                }
+            } else {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        withAnimation {
+                            mapFocused = true
+                        }
+                    } label: {
+                        Image(systemName: "map")
+                    }
+                }
+                
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                    } label: {
+                        Image(systemName: "star.fill")
+                    }
+                }
+                
+                
             }
         }
         
-        .foregroundStyle(.white)
+    }
+}
+
+struct StreamConditionsDetailViewStack: View {
+    @Binding var location: Location
+    @State var editingWidget: Bool = false
+    
+    var body: some View {
+        VStack(alignment: .center, spacing: 16) {
+            HStack {
+                Spacer()
+                VStack {
+                    Group {
+                        if let (river, location, state) = location.tupledName {
+                            Text(river)
+                                .font(.largeTitle)
+                                .bold()
+                            if let state {
+                                Text("\(location), \(state)")
+                                    .font(.headline)
+                            } else {
+                                Text("\(location)")
+                                    .font(.headline)
+                            }
+                        }
+                    }
+                }
+                .padding()
+                Spacer()
+            }
+            .background {
+                RoundedRectangle(cornerRadius: 16)
+                    .foregroundStyle(.thickMaterial)
+            }
+            ZStack {
+                RoundedRectangle(cornerRadius: 16)
+                    .foregroundStyle(.thickMaterial)
+                VStack(spacing: 0) {
+                    Rectangle()
+                        .foregroundStyle(Color.clear)
+                        .frame(height: 150)
+                    if editingWidget {
+                        WidgetSettingsView(location: $location)
+                            .padding()
+                            .transition(.asymmetric(insertion: .push(from: .top), removal: .push(from: .bottom)))
+                        Spacer()
+                    }
+                }
+                VStack {
+                    Button {
+                        withAnimation {
+                            self.editingWidget.toggle()
+                        }
+                    } label: {
+                        MediumWidgetView(data: location)
+                            .padding()
+                            .background {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(LinearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom))
+                            }
+                            .overlay {
+                                VStack {
+                                    Spacer()
+                                    Text("(tap to edit widget)")
+                                        .font(.caption)
+                                        .italic()
+                                        .foregroundStyle(Color("GraphAxisForeground"))
+                                }
+                            }
+                    }
+                    .buttonStyle(.plain)
+                    .frame(height: 150)
+                    
+                    if editingWidget {
+                        Spacer()
+                    }
+                }
+                .shadow(radius: 4)
+            }
+            
+            Spacer()
+        }
+        .padding(.horizontal)
+    }
+}
+
+
+
+#Preview {
+    NavigationView {
+        StreamConditionsFullscreenView(location: Location.sampleData)
     }
 }
 

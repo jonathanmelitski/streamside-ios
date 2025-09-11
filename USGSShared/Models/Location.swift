@@ -8,11 +8,29 @@
 import Foundation
 import UIKit
 
-public struct Location: Codable {
+public struct Location: Codable, Hashable, Equatable, Identifiable {
+    public static func == (lhs: Location, rhs: Location) -> Bool {
+        return lhs.hashValue == rhs.hashValue
+    }
+    
     public let name: String
     public let id: String
     public let location: LocationGeog
     public let metrics: [LocationDataMetric]
+    
+    public var tupledName: (String, String, String?)? {
+        if let match = name.wholeMatch(of: /^(?<river>.+?) AT (?<location>.+) (?<state>[A-Z]{2})$/) {
+            let river = String(match.river)
+            let location = String(match.location)
+            let state = String(match.state)
+            return (river, location, state)
+        } else if let match = name.wholeMatch(of: /^(?<river>.+?) AT (?<location>.+)$/) {
+            let river = String(match.river)
+            let location = String(match.location)
+            return (river, location, nil)
+        }
+        return nil
+    }
     
     public var settings: LocationSettings
     
@@ -46,12 +64,17 @@ public struct Location: Codable {
         return res
     }
     
-    public init(name: String, id: String, location: LocationGeog, metrics: [LocationDataMetric], settings: LocationSettings = .defaultSettings) {
+    public init(name: String, id: String, location: LocationGeog, metrics: [LocationDataMetric]) {
         self.name = name
         self.id = id
         self.location = location
         self.metrics = metrics
-        self.settings = settings
+        
+        if let prevLoc = SharedViewModel.shared.locationData[id] {
+            self.settings = prevLoc.settings
+        } else {
+            self.settings = LocationSettings(defaultSettingsFrom: metrics)
+        }
     }
     
     public static var sampleData: Location {
@@ -66,79 +89,141 @@ public struct Location: Codable {
         let usgsData = try! dec.decode(USGSData.self, from: data)
         return Location.getArray(from: usgsData)[0]
     }
+    
+    public func withUpdatedSettings(_ modification: (inout LocationSettings) -> Void) -> Location {
+        var new = self
+        modification(&new.settings)
+        return new
+    }
 }
 
-public enum USGSDataSeries: String, Codable {
-    case cfs = "00060"
-    case temp = "00010"
+public enum USGSDataSeries: Codable, CaseIterable {
+    case cfs
+    case temp
     
-    public static func CtoFconversion(data: LocationDataMetricValue) -> String? {
-        let temp = data.value
-        guard let numTemp = Double(temp) else {
+    public var descriptor: LocationDataMetricDescriptor {
+        switch self {
+        case .cfs:
+            return .init(name: nil, description: nil, code: "00060")
+        case .temp:
+            return .init(name: nil, description: nil, code: "00010")
+        }
+    }
+    
+    public var conversion: ((LocationDataMetricValue) -> LocationDataMetricValue)? {
+        switch self {
+        case .temp:
+            return Self.CtoFconversion
+        default:
             return nil
         }
+    }
+    
+    public var stringSuffix: String {
+        switch self {
+        case .temp:
+            return "°"
+        default:
+            return ""
+        }
+    }
+    
+    public var labelShort: String {
+        switch self {
+        case .temp:
+            return "TEMP"
+        case .cfs:
+            return "CFS"
+        }
+    }
+    
+    
+    public static func CtoFconversion(data: LocationDataMetricValue) -> LocationDataMetricValue {
+        let temp = data.value
+        
+        // I hope this doesn't bite me in the butt.
+        let numTemp = Double(temp)!
         
         let fahrConv = (numTemp * 9/5) + 32
         let fahrString = String(format: "%.1f", fahrConv)
-        return String("\(fahrString)°")
+        
+        return .init(value: fahrString, date: data.date)
     }
     
-    public func getAllValues(from data: Location) -> [LocationDataMetricValue]? {
-        let vals = data.metrics.first(where: { $0.descriptor.code == self.rawValue })
-        return vals?.value
-    }
     
-    public func getCurrentValue(from data: Location) -> LocationDataMetricValue?  {
-        guard let vals = self.getAllValues(from: data) else { return nil }
-        
-        let sorted = vals.sorted(by: { $0.date > $1.date })
-        
-        return sorted.first
-    }
-    
-    public func getCurrentValueString(from data: Location, modifier: ((LocationDataMetricValue) -> String?)? = nil) -> String? {
-        guard let value = self.getCurrentValue(from: data) else { return nil }
-        
-        if let modifier {
-            return modifier(value)
-        }
-        
-        return value.value
-    }
-    
-    public func getCurrentValueDate(from data: Location) -> Date? {
-        guard let value = self.getCurrentValue(from: data) else { return nil }
-        return value.date
-    }
-    
-    public func getCurrentValueDateString(from data: Location) -> String? {
-        guard let value = self.getCurrentValue(from: data) else { return nil }
-        let formatter = DateFormatter()
-        formatter.dateFormat = "h:mm" // 'H' = 24-hour format, no leading zero
-        formatter.timeZone = TimeZone.current // or set your preferred zone
-        
-        return formatter.string(from: value.date)
-    }
 }
 
-public struct LocationDataMetric: Codable {
+public struct LocationDataMetric: Codable, Hashable, Equatable {
     public let descriptor: LocationDataMetricDescriptor
     public let value: [LocationDataMetricValue]
+    
+    var descriptorSpecificConversion: ((LocationDataMetricValue) -> LocationDataMetricValue)? {
+        return USGSDataSeries.allCases.map { el in
+            return (el.descriptor, el.conversion)
+        }.first(where: { $0.0 == descriptor })?.1
+    }
+    
+    public var descriptorSpecificValues: [LocationDataMetricValue] {
+        // perform a desired operation on certain descriptors (based on settings?)
+        return self.value.map { el in
+            if let conversion = self.descriptorSpecificConversion {
+                return conversion(el)
+            } else {
+                return el
+            }
+        }
+    }
+    
+    public var descriptorSpecificCurrentValue: Double? {
+        guard let latest = self.value.sorted(by: { $0.date > $1.date }).first else { return nil }
+        if let conversion = self.descriptorSpecificConversion {
+            return Double(conversion(latest).value)
+        }
+        return Double(latest.value)
+    }
+    
+    public var descriptorSpecificCurrentValueString: String? {
+        guard let value = self.descriptorSpecificCurrentValue else { return nil }
+        if let predefinedSeries = USGSDataSeries.allCases.first(where: { $0.descriptor == self.descriptor }) {
+            return "\(value)\(predefinedSeries.stringSuffix)"
+        }
+        return "\(value)"
+    }
+    
+    public var descriptorSpecificLabelShort: String {
+        if let predefinedSeries = USGSDataSeries.allCases.first(where: { $0.descriptor == self.descriptor }) {
+            return predefinedSeries.labelShort
+        }
+        return self.descriptor.name!
+    }
+    
 }
 
-public struct LocationDataMetricDescriptor: Codable {
-    public let name: String
-    public let description: String
+public struct LocationDataMetricDescriptor: Codable, Equatable, Hashable {
+    public static func == (lhs: LocationDataMetricDescriptor, rhs: LocationDataMetricDescriptor) -> Bool {
+        return lhs.code == rhs.code
+    }
+    
+    public let name: String?
+    public let description: String?
     public let code: String
+    
+    public var parsedLabel: String? {
+        
+        if let match = self.name?.split(separator: ",").first {
+            return String(match).trimmingCharacters(in: .whitespaces)
+        }
+        return nil
+    }
 }
 
-public struct LocationDataMetricValue: Codable, Identifiable {
+public struct LocationDataMetricValue: Codable, Identifiable, Hashable {
     public var id = UUID()
     public let value: String
     public let date: Date
 }
 
-public struct LocationGeog: Codable {
+public struct LocationGeog: Codable, Hashable {
     public let latitude: Double
     public let longitude: Double
 }
