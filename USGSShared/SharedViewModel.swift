@@ -68,12 +68,6 @@ public class SharedViewModel: ObservableObject {
     }
     
     @MainActor public func refreshData() async {
-        
-        let dict = (self.getDict() ?? [:]).filter({ el in
-            self.favoriteLocations.contains(where: { $0 == el.key })
-        })
-        self.locationData = dict
-        self.saveDict()
         let keys = self.favoriteLocations
         self.locationData = await withTaskGroup(of: (String, Location?).self, returning: [String : Location].self) { group in
             keys.forEach { key in
