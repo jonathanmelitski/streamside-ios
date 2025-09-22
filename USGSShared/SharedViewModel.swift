@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import SwiftUI
 import WidgetKit
+import FirebaseDatabase
 
 public class SharedViewModel: ObservableObject {
     public static var shared = SharedViewModel()
@@ -20,6 +21,7 @@ public class SharedViewModel: ObservableObject {
     @Published public private(set) var locationData: [String : Location] = [:]
     @Published public var selectedTab: SharedViewModel.Tab = .conditions
     @Published public var nav: NavigationPath = .init()
+    @Published public var allLocations: [BasicLocation] = []
     
     static let data = UserDefaults(suiteName: "group.com.jmelitski.USGS")
     
@@ -33,6 +35,26 @@ public class SharedViewModel: ObservableObject {
         
         if let first = self.favoriteLocations.first {
             selectedTab = .locations
+        }
+        
+        let db = Database.database(url: "https://streamside-2b8f1-default-rtdb.firebaseio.com/")
+        db.isPersistenceEnabled = true
+        let reference = db.reference(withPath: "/all_usgs_locations")
+        reference.observe(.value) { snapshot in
+            var locs: [BasicLocation] = []
+            for child in snapshot.children {
+                if let childSnap = child as? DataSnapshot,
+                   let name = childSnap.childSnapshot(forPath: "name").value as? String,
+                   let id = childSnap.childSnapshot(forPath: "id").value as? String,
+                   let lat = childSnap.childSnapshot(forPath: "geo").childSnapshot(forPath: "latitude").value as? Double,
+                   let long = childSnap.childSnapshot(forPath: "geo").childSnapshot(forPath: "longitude").value as? Double {
+                    locs.append(.init(id: id, name: name, geo: BasicLocationGeo(latitude: lat, longitude: long)))
+                } else {
+                     print("Brokey!")
+                }
+            }
+            
+            self.allLocations = locs
         }
         
         Task { @MainActor in
@@ -89,9 +111,6 @@ public class SharedViewModel: ObservableObject {
     
     @discardableResult
     @MainActor public func fetchLocationData(_ id: String) async throws -> Location {
-        guard self.favoriteLocations.contains(where: { $0 == id }) else {
-            throw USGSDataError.notInLocations
-        }
         let data = try await NetworkManager.shared.getUSGSData(for: id)
         let locations = Location.getArray(from: data)
         guard let location = locations.first(where: { $0.id == id }) else { throw USGSDataError.locationNotFound }

@@ -12,132 +12,106 @@ import DotLottie
 
 struct SearchView: View {
     @EnvironmentObject var vm: SharedViewModel
-    @State var camera: MKCoordinateRegion? = nil
-    @State var center: CLLocationCoordinate2D? = nil
-    @State var coordinates: [CLLocationCoordinate2D]? = nil
-    @State var allowNewSearch: Bool = false
-    @State var searching: Bool = false
-    @State var locations: [Location]? = nil
-    @State var alertText: String? = nil
-    
+    @State var locationsToShow: [BasicLocation] = []
+    @State var selectedLocation: BasicLocation? = nil
+    @State var selectedLocationData: Location? = nil
     var body: some View {
-        let presentAlert = Binding(get: {
-            alertText != nil
-        }, set: { newValue in
-            if !newValue {
-                alertText = nil
-            }
-        })
-        
         ZStack {
-            Map {
-                ForEach(locations ?? [], id: \.id) { location in
-                    Marker(coordinate: .init(latitude: location.location.latitude, longitude: location.location.longitude)) {
-                        Text(location.name)
-                    }
-                }
-                
-                
-                if let coordinates, allowNewSearch {
-                    MapPolygon(coordinates: coordinates)
-                    .foregroundStyle(.green.opacity(0.3))
-                    .stroke(.green, lineWidth: 2.0)
+            Map(selection: $selectedLocation) {
+                ForEach(locationsToShow) { loc in
+                    Marker(coordinate: CLLocationCoordinate2D(latitude: loc.geo.latitude, longitude: loc.geo.longitude), label: { Text(loc.name) })
+                        .tag(loc)
                 }
             }
             .onMapCameraChange(frequency: .continuous) { ctx in
-                let region = ctx.region
-                let coordinates: [CLLocationCoordinate2D] = [
-                    .init(latitude: region.center.latitude - 2.5, longitude: region.center.longitude - 2.5),
-                    .init(latitude: region.center.latitude + 2.5, longitude: region.center.longitude - 2.5),
-                    .init(latitude: region.center.latitude + 2.5, longitude: region.center.longitude + 2.5),
-                    .init(latitude: region.center.latitude - 2.5, longitude: region.center.longitude + 2.5)
-                ]
-                withAnimation {
-                    self.coordinates = coordinates
-                }
-                self.camera = region
-                center = ctx.region.center
+                guard ctx.camera.distance < 200000 else { return }
+                filter(ctx)
             }
-            
-//            if searching {
-//                ProgressView()
-//                    .padding()
-//                    .background {
-//                        RoundedRectangle(cornerRadius: 16)
-//                    }
-//            }
-            
+            .onMapCameraChange(frequency: .onEnd) { ctx in
+                guard ctx.camera.distance > 200000 else { return }
+                guard ctx.camera.distance < 1000000 else {
+                    withAnimation {
+                        self.locationsToShow = []
+                    }
+                    return
+                }
+                filter(ctx)
+            }
             VStack {
                 Spacer()
-                Button {
-                    self.allowNewSearch.toggle()
-//                        if let camera {
-//                            let north = camera.center.latitude + camera.span.latitudeDelta / 2
-//                            let south = camera.center.latitude - camera.span.latitudeDelta / 2
-//                            let east = camera.center.longitude + camera.span.longitudeDelta / 2
-//                            let west = camera.center.longitude - camera.span.longitudeDelta / 2
-//
-//                            Task {
-//                                if let data = try? await NetworkManager.shared.getUSGSLocations(in: .init(northernLat: north, southernLat: south, easternLong: east, westernLong: west)) {
-//                                    withAnimation {
-//                                        self.locations = Location.getArray(from: data)
-//                                    }
-//                                } else {
-//                                    alertText = "Unable to fetch location data. Try a smaller area or check your connection."
-//                                }
-//                                self.searching = false
-//                            }
-//                        }
-                } label: {
-                    Text("Load Area")
-                        .foregroundStyle(.black)
-                        .padding()
+                if let selectedLocationData {
+                    MediumWidgetView(data: selectedLocationData)
+                        .frame(height: 150)
                         .background {
                             RoundedRectangle(cornerRadius: 16)
-                                .foregroundStyle(.ultraThickMaterial)
+                                .fill(LinearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom))
                         }
+                        .overlay {
+                            HStack {
+                                Spacer()
+                                VStack {
+                                    Button {
+                                        if vm.favoriteLocations.contains(where: { $0 == selectedLocation?.id }) {
+                                            vm.removeFavoriteLocation(selectedLocation!.id)
+                                        } else {
+                                            vm.addFavoriteLocation(selectedLocation!.id)
+                                        }
+                                        
+                                    } label: {
+                                        Image(systemName: vm.favoriteLocations.contains(where: { $0 == selectedLocation?.id }) ? "star.fill" : "star")
+                                            .foregroundStyle(.yellow)
+                                            .font(.title)
+                                    }
+                                    .padding()
+                                    
+                                    Spacer()
+                                }
+                            }
+                        }
+                        .padding()
+                        .shadow(radius: 8)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
-                .padding()
             }
         }
-//        VStack {
-//            Button {
-//                vm.addFavoriteLocation("04250200")
-//                vm.addFavoriteLocation("01420500")
-//            } label: {
-//                Text("Add Salmon and Beaver")
-//            }
-//            .buttonStyle(.borderedProminent)
-//            Button {
-//                vm.removeFavoriteLocation("04250200")
-//                vm.removeFavoriteLocation("01420500")
-//            } label: {
-//                Text("Remove All")
-//            }
-//        }
-//        .alert(isPresented: presentAlert) {
-//            Alert(title: Text("Error"))
-//        }
+        .onChange(of: selectedLocation) {
+            guard let loc = selectedLocation else {
+                withAnimation(.easeOut(duration: 0.2)) {
+                    selectedLocationData = nil
+                }
+                return
+            }
+            
+            Task {
+                let data = try? await vm.fetchLocationData(loc.id)
+                withAnimation(.easeOut(duration: 0.2)) {
+                    selectedLocationData = data
+                }
+            }
+            
+        }
+    }
+    
+    func filter(_ ctx: MapCameraUpdateContext) {
+        let minLat = ctx.region.center.latitude - ctx.region.span.latitudeDelta / 2
+        let maxLat = ctx.region.center.latitude + ctx.region.span.latitudeDelta / 2
+        let minLong = ctx.region.center.longitude - ctx.region.span.longitudeDelta / 2
+        let maxLong = ctx.region.center.longitude + ctx.region.span.longitudeDelta / 2
         
-//        Text("SearchView")
-//            .onTapGesture {
-//                vm.addFavoriteLocation("01420500")
-//            }
-//        Text("Rremove")
-//            .onTapGesture {
-//                vm.removeFavoriteLocation("01420500")
-//            }
-//        Text("Fetch")
-//            .onTapGesture {
-//                Task {
-//                    let data = try? await NetworkManager.shared.getUSGSLocations(in: .init(northernLat: 42.227977, southernLat: 41.524483, easternLong: -74.189429, westernLong: -75.321021))
-//                    let locs = Location.getArray(from: data!)
-//                }
-//            }
+        withAnimation {
+            self.locationsToShow = vm.allLocations.filter { el in
+                let lat = el.geo.latitude
+                let long = el.geo.longitude
+                
+                return lat >= minLat && lat <= maxLat && long >= minLong && long <= maxLong
+            }
+        }
     }
 }
 
 #Preview {
-    SearchView()
-        .environmentObject(SharedViewModel.shared)
+    NavigationStack {
+        SearchView()
+            .environmentObject(SharedViewModel.shared)
+    }
 }

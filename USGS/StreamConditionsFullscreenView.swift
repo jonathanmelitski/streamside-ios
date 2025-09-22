@@ -15,6 +15,7 @@ struct StreamConditionsFullscreenView: View {
     static let mainDimension: CGFloat = 140
     @State var mapFocused = false
     @State var cameraPosition: MapCameraPosition
+    @ObservedObject var vm = SharedViewModel.shared
     
     init(location: Location) {
         self.location = location
@@ -74,8 +75,15 @@ struct StreamConditionsFullscreenView: View {
                 
                 ToolbarItem(placement: .primaryAction) {
                     Button {
+                        if vm.favoriteLocations.contains(where: { $0 == location.id }) {
+                            vm.removeFavoriteLocation(location.id)
+                        } else {
+                            vm.addFavoriteLocation(location.id)
+                        }
+                        
                     } label: {
-                        Image(systemName: "star.fill")
+                        Image(systemName: vm.favoriteLocations.contains(where: { $0 == location.id }) ? "star.fill" : "star")
+                            .foregroundStyle(.yellow)
                     }
                 }
                 

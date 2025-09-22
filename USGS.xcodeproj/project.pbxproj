@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		734A9B4C2E81CC25001148A2 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 734A9B4B2E81CC25001148A2 /* FirebaseAppCheck */; };
+		734A9B502E81CD80001148A2 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 734A9B4F2E81CD80001148A2 /* FirebaseAppCheck */; };
+		734A9B522E81CD80001148A2 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 734A9B512E81CD80001148A2 /* FirebaseDatabase */; };
+		734A9B542E81CD9A001148A2 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 734A9B532E81CD9A001148A2 /* FirebaseCore */; };
 		737FC4BF2DE6B66100F56288 /* USGSShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 737FC4B72DE6B66100F56288 /* USGSShared.framework */; };
 		737FC4C02DE6B66100F56288 /* USGSShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 737FC4B72DE6B66100F56288 /* USGSShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		737FC4DA2DE6BFFB00F56288 /* USGSShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 737FC4B72DE6B66100F56288 /* USGSShared.framework */; };
@@ -14,6 +18,8 @@
 		73B4F1592DE5671900B305A7 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73B4F1582DE5671800B305A7 /* WidgetKit.framework */; };
 		73B4F15B2DE5671900B305A7 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73B4F15A2DE5671900B305A7 /* SwiftUI.framework */; };
 		73B4F16A2DE5671C00B305A7 /* USGS WidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 73B4F1562DE5671800B305A7 /* USGS WidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		73FBE4D32E79B2D60085166B /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 73FBE4D22E79B2D60085166B /* FirebaseCore */; };
+		73FBE4D52E79B2D60085166B /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 73FBE4D42E79B2D60085166B /* FirebaseFunctions */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -157,6 +163,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				734A9B522E81CD80001148A2 /* FirebaseDatabase in Frameworks */,
+				734A9B542E81CD9A001148A2 /* FirebaseCore in Frameworks */,
+				734A9B502E81CD80001148A2 /* FirebaseAppCheck in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -165,7 +174,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				737FC4BF2DE6B66100F56288 /* USGSShared.framework in Frameworks */,
+				73FBE4D32E79B2D60085166B /* FirebaseCore in Frameworks */,
 				73A0E72B2E22BB2C0019F8FD /* DotLottie in Frameworks */,
+				734A9B4C2E81CC25001148A2 /* FirebaseAppCheck in Frameworks */,
+				73FBE4D52E79B2D60085166B /* FirebaseFunctions in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -243,6 +255,9 @@
 			);
 			name = USGSShared;
 			packageProductDependencies = (
+				734A9B4F2E81CD80001148A2 /* FirebaseAppCheck */,
+				734A9B512E81CD80001148A2 /* FirebaseDatabase */,
+				734A9B532E81CD9A001148A2 /* FirebaseCore */,
 			);
 			productName = USGSShared;
 			productReference = 737FC4B72DE6B66100F56288 /* USGSShared.framework */;
@@ -271,6 +286,9 @@
 			name = USGS;
 			packageProductDependencies = (
 				73A0E72A2E22BB2C0019F8FD /* DotLottie */,
+				73FBE4D22E79B2D60085166B /* FirebaseCore */,
+				73FBE4D42E79B2D60085166B /* FirebaseFunctions */,
+				734A9B4B2E81CC25001148A2 /* FirebaseAppCheck */,
 			);
 			productName = USGS;
 			productReference = 73B4F1412DE566F600B305A7 /* USGS.app */;
@@ -331,6 +349,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				73A0E7292E22BB2C0019F8FD /* XCRemoteSwiftPackageReference "dotlottie-ios" */,
+				73FBE4D12E79B2D60085166B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 73B4F1422DE566F600B305A7 /* Products */;
@@ -796,13 +815,51 @@
 				kind = branch;
 			};
 		};
+		73FBE4D12E79B2D60085166B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.3.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		734A9B4B2E81CC25001148A2 /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73FBE4D12E79B2D60085166B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
+		734A9B4F2E81CD80001148A2 /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73FBE4D12E79B2D60085166B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
+		734A9B512E81CD80001148A2 /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73FBE4D12E79B2D60085166B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabase;
+		};
+		734A9B532E81CD9A001148A2 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73FBE4D12E79B2D60085166B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
 		73A0E72A2E22BB2C0019F8FD /* DotLottie */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 73A0E7292E22BB2C0019F8FD /* XCRemoteSwiftPackageReference "dotlottie-ios" */;
 			productName = DotLottie;
+		};
+		73FBE4D22E79B2D60085166B /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73FBE4D12E79B2D60085166B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		73FBE4D42E79B2D60085166B /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73FBE4D12E79B2D60085166B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
