@@ -36,5 +36,6 @@ struct StreamConditionsView: View {
                 }
             }
         }
+        .navigationTitle("My Locations")
     }
 }

@@ -13,23 +13,28 @@ struct ContentView: View {
     @ObservedObject var vm = SharedViewModel.shared
     
     var body: some View {
-        NavigationStack(path: $vm.nav) {
-            TabView(selection: $vm.selectedTab) {
-                Tab("Search", systemImage: "magnifyingglass", value: .locations) {
+        TabView(selection: $vm.selectedTab) {
+            Tab("Search", systemImage: "magnifyingglass", value: .locations) {
+                NavigationStack(path: $vm.nav) {
                     SearchView()
-                }
-                Tab("Conditions", systemImage: "figure.fishing", value: .conditions) {
-                    StreamConditionsView()
-                }
-                Tab("Options", systemImage: "gear", value: .settings) {
-                    Text("Settings!")
+                        .navigationDestination(for: Location.self) { loc in
+                            StreamConditionsFullscreenView(location: loc)
+                        }
                 }
             }
-            .tabViewStyle(.sidebarAdaptable)
-            .navigationDestination(for: Location.self) { loc in
-                StreamConditionsFullscreenView(location: loc)
+            Tab("Conditions", systemImage: "figure.fishing", value: .conditions) {
+                NavigationStack(path: $vm.nav) {
+                    StreamConditionsView()
+                        .navigationDestination(for: Location.self) { loc in
+                            StreamConditionsFullscreenView(location: loc)
+                        }
+                }
+            }
+            Tab("Options", systemImage: "gear", value: .settings) {
+                Text("Settings!")
             }
         }
+        .tabViewStyle(.sidebarAdaptable)
         .environmentObject(vm)
         .onAppear {
             Task {
