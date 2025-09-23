@@ -14,7 +14,11 @@ struct StreamConditionsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 8) {
-                ForEach(vm.favoriteLocations, id: \.self) { el in
+                ForEach(vm.favoriteLocations.sorted(by: {
+                    if vm.widgetPreferredLocation == $0 { return true }
+                    if vm.widgetPreferredLocation == $1 { return false }
+                    return $0 < $1
+                }), id: \.self) { el in
                     Group {
                         if let kv = vm.locationData.first(where: { $0.key == el }) {
                             let val = kv.value
@@ -25,12 +29,33 @@ struct StreamConditionsView: View {
                             Text("Unable to fetch data for \(el)")
                         }
                     }
+                    .overlay {
+                        HStack {
+                            Spacer()
+                            VStack {
+                                Button {
+                                    if vm.widgetPreferredLocation == el {
+                                        vm.setPreferredWidgetLocation(nil)
+                                    } else {
+                                        vm.setPreferredWidgetLocation(el)
+                                    }
+                                    
+                                } label: {
+                                    Image(systemName: vm.widgetPreferredLocation == el ? "crown.fill" : "crown")
+                                        .foregroundStyle(.yellow)
+                                }
+                                
+                                Spacer()
+                            }
+                        }
+                    }
                     .padding()
                     .frame(height: 150)
                     .background {
                         RoundedRectangle(cornerRadius: 16)
                             .fill(LinearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom))
                     }
+                    
                     .padding()
                     .shadow(radius: 8)
                 }

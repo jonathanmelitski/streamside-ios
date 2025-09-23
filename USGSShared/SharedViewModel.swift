@@ -40,26 +40,6 @@ public class SharedViewModel: ObservableObject {
             selectedTab = .locations
         }
         
-        let db = Database.database(url: "https://streamside-2b8f1-default-rtdb.firebaseio.com/")
-        db.isPersistenceEnabled = true
-        let reference = db.reference(withPath: "/all_usgs_locations")
-        reference.observe(.value) { snapshot in
-            var locs: [BasicLocation] = []
-            for child in snapshot.children {
-                if let childSnap = child as? DataSnapshot,
-                   let name = childSnap.childSnapshot(forPath: "name").value as? String,
-                   let id = childSnap.childSnapshot(forPath: "id").value as? String,
-                   let lat = childSnap.childSnapshot(forPath: "geo").childSnapshot(forPath: "latitude").value as? Double,
-                   let long = childSnap.childSnapshot(forPath: "geo").childSnapshot(forPath: "longitude").value as? Double {
-                    locs.append(.init(id: id, name: name, geo: BasicLocationGeo(latitude: lat, longitude: long)))
-                } else {
-                     print("Brokey!")
-                }
-            }
-            
-            self.allLocations = locs
-        }
-        
         Task { @MainActor in
             await self.refreshData()
         }
@@ -83,10 +63,33 @@ public class SharedViewModel: ObservableObject {
         self.saveLocs()
     }
     
-    public func setPreferredWidgetLocation(_ id: String) {
+    public func setPreferredWidgetLocation(_ id: String?) {
         self.widgetPreferredLocation = id
         Self.data?.set(id, forKey: Self.widgetPreferenceKey)
+        Self.data?.synchronize()
         WidgetCenter.shared.reloadTimelines(ofKind: "USGS_Widget")
+    }
+    
+    public func loadAllLocationsFromFirebase() {
+        let db = Database.database(url: "https://streamside-2b8f1-default-rtdb.firebaseio.com/")
+        db.isPersistenceEnabled = true
+        let reference = db.reference(withPath: "/all_usgs_locations")
+        reference.observe(.value) { snapshot in
+            var locs: [BasicLocation] = []
+            for child in snapshot.children {
+                if let childSnap = child as? DataSnapshot,
+                   let name = childSnap.childSnapshot(forPath: "name").value as? String,
+                   let id = childSnap.childSnapshot(forPath: "id").value as? String,
+                   let lat = childSnap.childSnapshot(forPath: "geo").childSnapshot(forPath: "latitude").value as? Double,
+                   let long = childSnap.childSnapshot(forPath: "geo").childSnapshot(forPath: "longitude").value as? Double {
+                    locs.append(.init(id: id, name: name, geo: BasicLocationGeo(latitude: lat, longitude: long)))
+                } else {
+                     print("Brokey!")
+                }
+            }
+            
+            self.allLocations = locs
+        }
     }
     
     public func saveLocationData(_ data: Location, for id: String) {

@@ -8,12 +8,14 @@
 import SwiftUI
 import FirebaseCore
 import FirebaseFunctions
+import USGSShared
 
 
 class AppDelegate: NSObject, UIApplicationDelegate {
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
     FirebaseApp.configure()
+      SharedViewModel.shared.loadAllLocationsFromFirebase()
 
     return true
   }
