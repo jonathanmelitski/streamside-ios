@@ -9,12 +9,11 @@ import WidgetKit
 import AppIntents
 import USGSShared
 
+// Not really used for now
+
 struct ConfigurationAppIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource { "Configuration" }
     static var description: IntentDescription { "Select the river to display data for." }
-    
-    @Parameter(title: "Selected River")
-    var location: Location?
 }
 
 extension Location: AppEntity {

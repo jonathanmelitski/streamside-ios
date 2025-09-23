@@ -9,28 +9,24 @@ import WidgetKit
 import SwiftUI
 import USGSShared
 
-struct Provider: AppIntentTimelineProvider {
+struct Provider: TimelineProvider {
+    func getSnapshot(in context: Context, completion: @escaping @Sendable (SimpleEntry) -> Void) {
+        completion(SimpleEntry(date: Date(), data: Location.sampleData))
+    }
+    
+    func getTimeline(in context: Context, completion: @escaping @Sendable (Timeline<SimpleEntry>) -> Void) {
+        SharedViewModel.shared.resetState() {
+            let fetchedData = SharedViewModel.shared.locationData[SharedViewModel.shared.widgetPreferredLocation ?? ""]
+            let currentDate = Date()
+            let entry = SimpleEntry(date: currentDate, data: fetchedData)
+            let nextRefresh = Calendar.current.date(byAdding: .minute, value: 15, to: currentDate)!
+            completion(Timeline(entries: [entry], policy: .after(nextRefresh)))
+        }
+    }
+    
     func placeholder(in context: Context) -> SimpleEntry {
         SimpleEntry(date: Date(), data: nil)
     }
-
-    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
-        SimpleEntry(date: Date(), data: configuration.location)
-    }
-    
-    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        await SharedViewModel.shared.refreshData()
-        let fetchedData = SharedViewModel.shared.locationData[configuration.location?.id ?? ""]
-        let currentDate = Date()
-        let entry = SimpleEntry(date: currentDate, data: fetchedData)
-        let nextRefresh = Calendar.current.date(byAdding: .minute, value: 15, to: currentDate)!
-
-        return Timeline(entries: [entry], policy: .after(nextRefresh))
-    }
-
-//    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
 }
 
 struct SimpleEntry: TimelineEntry {
@@ -55,18 +51,16 @@ struct USGS_WidgetEntryView : View {
             }
                 
         } else {
-            let data = Location.sampleData
-            
-            switch family {
-            case .systemMedium:
-                MediumWidgetView(data: data)
-                    .redacted(reason: .placeholder)
-            case .systemSmall:
-                SmallWidgetView(data: data)
-                    .redacted(reason: .placeholder)
-            default:
-                Text("InvalidWidgetFormat")
+            VStack(alignment: .center) {
+                Text("No Selected Location")
+                    .bold()
+                    .font(.title2)
+                Divider()
+                Text("Select the primary widget location by pressing the crown icon on a location card.")
+                    .font(.caption)
             }
+            .foregroundStyle(.white)
+            .multilineTextAlignment(.center)
         }
     }
 }
@@ -75,12 +69,11 @@ struct USGS_Widget: Widget {
     let kind: String = "USGS_Widget"
 
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
+        StaticConfiguration(kind: kind, provider: Provider()) { entry in
             USGS_WidgetEntryView(entry: entry)
                 .containerBackground(.linearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom), for: .widget)
                 
         }
-        .configurationDisplayName("Stream Data")
         .supportedFamilies([.systemMedium, .systemSmall])
     }
 }

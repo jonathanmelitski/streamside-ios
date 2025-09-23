@@ -8,6 +8,7 @@
 public struct BasicLocation: Identifiable, Hashable {
     public let id: String
     public let name: String
+    public let state: String
     public let geo: BasicLocationGeo
 }
 

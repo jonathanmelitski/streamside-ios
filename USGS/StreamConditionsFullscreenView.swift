@@ -75,6 +75,20 @@ struct StreamConditionsFullscreenView: View {
                 
                 ToolbarItem(placement: .primaryAction) {
                     Button {
+                        if vm.widgetPreferredLocation == location.id {
+                            vm.setPreferredWidgetLocation(nil)
+                        } else {
+                            vm.setPreferredWidgetLocation(location.id)
+                        }
+                        
+                    } label: {
+                        Image(systemName: vm.widgetPreferredLocation == location.id ? "crown.fill" : "crown")
+                            .foregroundStyle(.yellow)
+                    }
+                }
+                
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
                         if vm.favoriteLocations.contains(where: { $0 == location.id }) {
                             vm.removeFavoriteLocation(location.id)
                         } else {
@@ -102,7 +116,7 @@ struct StreamConditionsDetailViewStack: View {
         VStack(alignment: .center, spacing: 16) {
             HStack {
                 Spacer()
-                VStack {
+                VStack(alignment: .center) {
                     Group {
                         if let (river, location, state) = location.tupledName {
                             Text(river)
@@ -117,6 +131,7 @@ struct StreamConditionsDetailViewStack: View {
                             }
                         }
                     }
+                    .multilineTextAlignment(.center)
                 }
                 .padding()
                 Spacer()
