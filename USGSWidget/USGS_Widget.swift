@@ -15,12 +15,12 @@ struct Provider: AppIntentTimelineProvider {
     }
 
     func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
-        SimpleEntry(date: Date(), data: configuration.location)
+        SimpleEntry(date: Date(), data: Location.sampleData)
     }
     
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
         await SharedViewModel.shared.refreshData()
-        let fetchedData = SharedViewModel.shared.locationData[configuration.location?.id ?? ""]
+        let fetchedData = SharedViewModel.shared.locationData[SharedViewModel.shared.widgetPreferredLocation ?? ""]
         let currentDate = Date()
         let entry = SimpleEntry(date: currentDate, data: fetchedData)
         let nextRefresh = Calendar.current.date(byAdding: .minute, value: 15, to: currentDate)!
@@ -55,18 +55,16 @@ struct USGS_WidgetEntryView : View {
             }
                 
         } else {
-            let data = Location.sampleData
-            
-            switch family {
-            case .systemMedium:
-                MediumWidgetView(data: data)
-                    .redacted(reason: .placeholder)
-            case .systemSmall:
-                SmallWidgetView(data: data)
-                    .redacted(reason: .placeholder)
-            default:
-                Text("InvalidWidgetFormat")
+            VStack(alignment: .center) {
+                Text("No Selected Location")
+                    .bold()
+                    .font(.title2)
+                Divider()
+                Text("Select the primary widget location by pressing the crown icon on a location card.")
+                    .font(.caption)
             }
+            .foregroundStyle(.white)
+            .multilineTextAlignment(.center)
         }
     }
 }

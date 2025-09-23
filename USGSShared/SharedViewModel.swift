@@ -15,6 +15,7 @@ public class SharedViewModel: ObservableObject {
     public static var shared = SharedViewModel()
     
     static let favoritesKey = "USGSApp-Favorites"
+    static let widgetPreferenceKey = "USGSApp-WidgetPreference"
     static let cacheKey = "USGSApp-Data"
     
     @Published public private(set) var favoriteLocations: [String] = []
@@ -22,6 +23,7 @@ public class SharedViewModel: ObservableObject {
     @Published public var selectedTab: SharedViewModel.Tab = .conditions
     @Published public var nav: NavigationPath = .init()
     @Published public var allLocations: [BasicLocation] = []
+    @Published public var widgetPreferredLocation: String?
     
     static let data = UserDefaults(suiteName: "group.com.jmelitski.USGS")
     
@@ -32,6 +34,7 @@ public class SharedViewModel: ObservableObject {
         
         self.favoriteLocations = locs
         self.locationData = dict
+        self.widgetPreferredLocation = Self.data?.string(forKey: Self.widgetPreferenceKey)
         
         if let first = self.favoriteLocations.first {
             selectedTab = .locations
@@ -78,6 +81,12 @@ public class SharedViewModel: ObservableObject {
         self.locationData.removeValue(forKey: id)
         self.saveDict()
         self.saveLocs()
+    }
+    
+    public func setPreferredWidgetLocation(_ id: String) {
+        self.widgetPreferredLocation = id
+        Self.data?.set(id, forKey: Self.widgetPreferenceKey)
+        WidgetCenter.shared.reloadTimelines(ofKind: "USGS_Widget")
     }
     
     public func saveLocationData(_ data: Location, for id: String) {
