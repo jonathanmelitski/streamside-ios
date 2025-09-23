@@ -15,11 +15,13 @@ struct SearchView: View {
     @State var locationsToShow: [BasicLocation] = []
     @State var selectedLocation: BasicLocation? = nil
     @State var selectedLocationData: Location? = nil
+    @State var showTextSearchSheet: Bool = false
+    @State var mapCameraPosition: MapCameraPosition = .automatic
     var body: some View {
         ZStack {
-            Map(selection: $selectedLocation) {
+            Map(position: $mapCameraPosition, selection: $selectedLocation) {
                 ForEach(locationsToShow) { loc in
-                    Marker(coordinate: CLLocationCoordinate2D(latitude: loc.geo.latitude, longitude: loc.geo.longitude), label: { Text(loc.name) })
+                    Marker(coordinate: CLLocationCoordinate2D(latitude: loc.geo.latitude, longitude: loc.geo.longitude), label: { Text(loc.name.uppercased()) })
                         .tag(loc)
                 }
             }
@@ -75,6 +77,7 @@ struct SearchView: View {
             }
         }
         .onChange(of: selectedLocation) {
+            self.showTextSearchSheet = false
             guard let loc = selectedLocation else {
                 withAnimation(.easeOut(duration: 0.2)) {
                     selectedLocationData = nil
@@ -86,9 +89,25 @@ struct SearchView: View {
                 let data = try? await vm.fetchLocationData(loc.id)
                 withAnimation(.easeOut(duration: 0.2)) {
                     selectedLocationData = data
+                    self.mapCameraPosition = .camera(.init(centerCoordinate: .init(latitude: loc.geo.latitude, longitude: loc.geo.longitude), distance: 10000))
                 }
             }
             
+        }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    withAnimation {
+                        self.showTextSearchSheet = true
+                    }
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                }
+            }
+        }
+        .sheet(isPresented: $showTextSearchSheet) {
+            LocationSearchSheetView(selectedLocation: $selectedLocation)
+                .padding()
         }
     }
     
@@ -105,6 +124,36 @@ struct SearchView: View {
                 
                 return lat >= minLat && lat <= maxLat && long >= minLong && long <= maxLong
             }
+        }
+    }
+}
+
+struct LocationSearchSheetView: View {
+    @Binding var selectedLocation: BasicLocation?
+    @ObservedObject var vm = SharedViewModel.shared
+    
+    @State var query: String = ""
+    
+    var body: some View {
+        VStack {
+            TextField("Search", text: $query, prompt: Text("Search Locations").font(.title2))
+            Divider()
+            List(vm.allLocations.sorted(by: {
+                if $0.state == $1.state {
+                    return $0.name < $1.name
+                } else {
+                    return $0.state < $1.state
+                }
+            }).filter({ query != "" ? $0.name.lowercased().contains(query.lowercased()) : true }), id: \.self) { location in
+                Button(action: {
+                    self.selectedLocation = location
+                }) {
+                    Text(location.name)
+                }
+                .buttonStyle(.plain)
+                .textCase(.uppercase)
+            }
+            .listStyle(.plain)
         }
     }
 }

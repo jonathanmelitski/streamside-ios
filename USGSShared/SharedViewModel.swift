@@ -15,50 +15,38 @@ public class SharedViewModel: ObservableObject {
     public static var shared = SharedViewModel()
     
     static let favoritesKey = "USGSApp-Favorites"
+    static let widgetPreferenceKey = "USGSApp-WidgetPreference"
     static let cacheKey = "USGSApp-Data"
     
     @Published public private(set) var favoriteLocations: [String] = []
     @Published public private(set) var locationData: [String : Location] = [:]
-    @Published public var selectedTab: SharedViewModel.Tab = .conditions
+    @Published public var selectedTab: SharedViewModel.Tab = .locations
     @Published public var nav: NavigationPath = .init()
     @Published public var allLocations: [BasicLocation] = []
+    @Published public var widgetPreferredLocation: String?
     
     static let data = UserDefaults(suiteName: "group.com.jmelitski.USGS")
     
     
     init() {
+        resetState()
+    }
+    
+    public func resetState(completion: (() -> ())? = nil) {
         let locs = self.getLocs() ?? []
         let dict = self.getDict() ?? [:]
         
         self.favoriteLocations = locs
         self.locationData = dict
+        self.widgetPreferredLocation = Self.data?.string(forKey: Self.widgetPreferenceKey)
         
         if let first = self.favoriteLocations.first {
-            selectedTab = .locations
-        }
-        
-        let db = Database.database(url: "https://streamside-2b8f1-default-rtdb.firebaseio.com/")
-        db.isPersistenceEnabled = true
-        let reference = db.reference(withPath: "/all_usgs_locations")
-        reference.observe(.value) { snapshot in
-            var locs: [BasicLocation] = []
-            for child in snapshot.children {
-                if let childSnap = child as? DataSnapshot,
-                   let name = childSnap.childSnapshot(forPath: "name").value as? String,
-                   let id = childSnap.childSnapshot(forPath: "id").value as? String,
-                   let lat = childSnap.childSnapshot(forPath: "geo").childSnapshot(forPath: "latitude").value as? Double,
-                   let long = childSnap.childSnapshot(forPath: "geo").childSnapshot(forPath: "longitude").value as? Double {
-                    locs.append(.init(id: id, name: name, geo: BasicLocationGeo(latitude: lat, longitude: long)))
-                } else {
-                     print("Brokey!")
-                }
-            }
-            
-            self.allLocations = locs
+            selectedTab = .conditions
         }
         
         Task { @MainActor in
             await self.refreshData()
+            completion?()
         }
     }
     
@@ -78,6 +66,35 @@ public class SharedViewModel: ObservableObject {
         self.locationData.removeValue(forKey: id)
         self.saveDict()
         self.saveLocs()
+    }
+    
+    public func setPreferredWidgetLocation(_ id: String?) {
+        self.widgetPreferredLocation = id
+        Self.data?.set(id, forKey: Self.widgetPreferenceKey)
+        WidgetCenter.shared.reloadTimelines(ofKind: "USGS_Widget")
+    }
+    
+    public func loadAllLocationsFromFirebase() {
+        let db = Database.database(url: "https://streamside-2b8f1-default-rtdb.firebaseio.com/")
+        db.isPersistenceEnabled = true
+        let reference = db.reference(withPath: "/all_usgs_locations")
+        reference.observe(.value) { snapshot in
+            var locs: [BasicLocation] = []
+            for child in snapshot.children {
+                if let childSnap = child as? DataSnapshot,
+                   let name = childSnap.childSnapshot(forPath: "name").value as? String,
+                   let id = childSnap.childSnapshot(forPath: "id").value as? String,
+                   let state = childSnap.childSnapshot(forPath: "state").value as? String,
+                   let lat = childSnap.childSnapshot(forPath: "geo").childSnapshot(forPath: "latitude").value as? Double,
+                   let long = childSnap.childSnapshot(forPath: "geo").childSnapshot(forPath: "longitude").value as? Double {
+                    locs.append(.init(id: id, name: name, state: state, geo: BasicLocationGeo(latitude: lat, longitude: long)))
+                } else {
+                     print("Brokey!")
+                }
+            }
+            
+            self.allLocations = locs
+        }
     }
     
     public func saveLocationData(_ data: Location, for id: String) {
@@ -131,7 +148,6 @@ public class SharedViewModel: ObservableObject {
         let enc = JSONEncoder()
         let data = try? enc.encode(self.favoriteLocations)
         Self.data?.set(data, forKey: Self.favoritesKey)
-        Self.data?.synchronize()
     }
     
     func getLocs() -> [String]? {
@@ -146,7 +162,6 @@ public class SharedViewModel: ObservableObject {
         let enc = JSONEncoder()
         let data = try? enc.encode(self.locationData)
         Self.data?.set(data, forKey: Self.cacheKey)
-        Self.data?.synchronize()
         
         WidgetCenter.shared.reloadTimelines(ofKind: "USGS_Widget")
     }

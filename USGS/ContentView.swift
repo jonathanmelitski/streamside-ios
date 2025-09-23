@@ -15,7 +15,7 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $vm.selectedTab) {
             Tab("Search", systemImage: "magnifyingglass", value: .locations) {
-                NavigationStack(path: $vm.nav) {
+                NavigationStack {
                     SearchView()
                         .navigationDestination(for: Location.self) { loc in
                             StreamConditionsFullscreenView(location: loc)

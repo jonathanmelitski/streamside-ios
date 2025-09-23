@@ -108,10 +108,11 @@ public struct MediumWidgetView: View {
                 }
                 .frame(height: 75)
             }
-            VStack {
+            VStack(alignment: .center) {
                 Text(data.name
                     .uppercased())
                     .font(.system(size: 12, weight: .bold))
+                    .multilineTextAlignment(.center)
                     .shadow(radius: 4)
                     .foregroundStyle(.white)
                     .padding()
