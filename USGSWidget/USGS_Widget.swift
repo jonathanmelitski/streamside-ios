@@ -15,13 +15,11 @@ struct Provider: TimelineProvider {
     }
     
     func getTimeline(in context: Context, completion: @escaping @Sendable (Timeline<SimpleEntry>) -> Void) {
-        Task {
-            await SharedViewModel.shared.refreshData()
+        SharedViewModel.shared.resetState() {
             let fetchedData = SharedViewModel.shared.locationData[SharedViewModel.shared.widgetPreferredLocation ?? ""]
             let currentDate = Date()
             let entry = SimpleEntry(date: currentDate, data: fetchedData)
             let nextRefresh = Calendar.current.date(byAdding: .minute, value: 15, to: currentDate)!
-
             completion(Timeline(entries: [entry], policy: .after(nextRefresh)))
         }
     }

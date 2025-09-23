@@ -34,15 +34,18 @@ struct StreamConditionsView: View {
                             Spacer()
                             VStack {
                                 Button {
-                                    if vm.widgetPreferredLocation == el {
-                                        vm.setPreferredWidgetLocation(nil)
-                                    } else {
-                                        vm.setPreferredWidgetLocation(el)
+                                    withAnimation {
+                                        if vm.widgetPreferredLocation == el {
+                                            vm.setPreferredWidgetLocation(nil)
+                                        } else {
+                                            vm.setPreferredWidgetLocation(el)
+                                        }
                                     }
                                     
                                 } label: {
                                     Image(systemName: vm.widgetPreferredLocation == el ? "crown.fill" : "crown")
                                         .foregroundStyle(.yellow)
+                                        .opacity(vm.widgetPreferredLocation == el ? 1.0 : 0.3)
                                 }
                                 
                                 Spacer()
