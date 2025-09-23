@@ -26,6 +26,8 @@ jobs:
           bundler-cache: true
       - name: Create fastlane API key json from updated key
         run: echo ${{ secrets.APP_STORE_CONNECT_API }} | base64 --decode > AuthKey_ZDBJYHK8BH.p8
+      - name: Install GoogleService-Info.plist
+        run: echo ${{ secrets.GOOGLE_SERVICE_INFO_B64 }} | base64 --decode > USGSShared/Config/GoogleService-Info.plist
       - name: Install the Apple certificate and provisioning profile
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.B64_CERTIFICATE }}
