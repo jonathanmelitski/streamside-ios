@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7323B8F42E88E7D3003A3A84 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 7323B8F32E88E7D3003A3A84 /* FirebaseAuth */; };
+		7323B8F82E88F243003A3A84 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 7323B8F72E88F243003A3A84 /* FirebaseAuth */; };
 		734A9B4C2E81CC25001148A2 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 734A9B4B2E81CC25001148A2 /* FirebaseAppCheck */; };
 		734A9B502E81CD80001148A2 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 734A9B4F2E81CD80001148A2 /* FirebaseAppCheck */; };
 		734A9B522E81CD80001148A2 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 734A9B512E81CD80001148A2 /* FirebaseDatabase */; };
@@ -166,6 +168,7 @@
 				734A9B522E81CD80001148A2 /* FirebaseDatabase in Frameworks */,
 				734A9B542E81CD9A001148A2 /* FirebaseCore in Frameworks */,
 				734A9B502E81CD80001148A2 /* FirebaseAppCheck in Frameworks */,
+				7323B8F42E88E7D3003A3A84 /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -174,6 +177,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				737FC4BF2DE6B66100F56288 /* USGSShared.framework in Frameworks */,
+				7323B8F82E88F243003A3A84 /* FirebaseAuth in Frameworks */,
 				73FBE4D32E79B2D60085166B /* FirebaseCore in Frameworks */,
 				73A0E72B2E22BB2C0019F8FD /* DotLottie in Frameworks */,
 				734A9B4C2E81CC25001148A2 /* FirebaseAppCheck in Frameworks */,
@@ -258,6 +262,7 @@
 				734A9B4F2E81CD80001148A2 /* FirebaseAppCheck */,
 				734A9B512E81CD80001148A2 /* FirebaseDatabase */,
 				734A9B532E81CD9A001148A2 /* FirebaseCore */,
+				7323B8F32E88E7D3003A3A84 /* FirebaseAuth */,
 			);
 			productName = USGSShared;
 			productReference = 737FC4B72DE6B66100F56288 /* USGSShared.framework */;
@@ -289,6 +294,7 @@
 				73FBE4D22E79B2D60085166B /* FirebaseCore */,
 				73FBE4D42E79B2D60085166B /* FirebaseFunctions */,
 				734A9B4B2E81CC25001148A2 /* FirebaseAppCheck */,
+				7323B8F72E88F243003A3A84 /* FirebaseAuth */,
 			);
 			productName = USGS;
 			productReference = 73B4F1412DE566F600B305A7 /* USGS.app */;
@@ -454,6 +460,7 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jmelitski.USGS.USGSShared;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -491,6 +498,7 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jmelitski.USGS.USGSShared;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -653,7 +661,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.jmelitski.USGS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = Development;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "927 Dev";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -826,6 +834,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		7323B8F32E88E7D3003A3A84 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73FBE4D12E79B2D60085166B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		7323B8F72E88F243003A3A84 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73FBE4D12E79B2D60085166B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
 		734A9B4B2E81CC25001148A2 /* FirebaseAppCheck */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 73FBE4D12E79B2D60085166B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

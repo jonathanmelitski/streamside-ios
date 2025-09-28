@@ -10,6 +10,7 @@ import Combine
 import SwiftUI
 import WidgetKit
 import FirebaseDatabase
+import FirebaseAuth
 
 public class SharedViewModel: ObservableObject {
     public static var shared = SharedViewModel()
@@ -18,6 +19,7 @@ public class SharedViewModel: ObservableObject {
     static let widgetPreferenceKey = "USGSApp-WidgetPreference"
     static let cacheKey = "USGSApp-Data"
     static let coordinatesStorageKey = "USGSApp-Coordinates"
+    static let authenticationCredentialKey = "USGSApp-AuthenticationCredential"
     
     @Published public private(set) var favoriteLocations: [String] = []
     @Published public private(set) var locationData: [String : Location] = [:]
@@ -26,13 +28,31 @@ public class SharedViewModel: ObservableObject {
     @Published public var allLocations: [BasicLocation] = []
     @Published public var widgetPreferredLocation: String?
     
+    @Published public var currentUser: User? = nil
+    
     @Published public var userSavedCoordinates: [UserSavedCoordinate] = []
+    
+    @Published public var awaitingVerificationCodeContinuation: (CheckedContinuation<String, Never>)? = nil
     
     static let data = UserDefaults(suiteName: "group.com.jmelitski.USGS")
     
     
     init() {
         resetState()
+        handleAuth()
+    }
+    
+    func handleAuth() {
+        if let user = Auth.auth().currentUser {
+            self.currentUser = user
+        }
+    }
+    
+    public func requestNewSignIn(with phoneNumber: String) async throws {
+        let user = try await self.newSignIn(phoneNumber: phoneNumber)
+        DispatchQueue.main.sync {
+            self.currentUser = user
+        }
     }
     
     public func resetState(completion: (() -> ())? = nil) {
@@ -139,6 +159,39 @@ public class SharedViewModel: ObservableObject {
         guard let location = locations.first(where: { $0.id == id }) else { throw USGSDataError.locationNotFound }
         return location
         
+    }
+    
+    func newSignIn(phoneNumber: String) async throws -> User {
+        Auth.auth().settings?.isAppVerificationDisabledForTesting = true
+        let token: String = try await withCheckedThrowingContinuation { continuation in
+            PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber) { vID, err in
+                if let err {
+                    continuation.resume(throwing: err)
+                    return
+                }
+                
+                guard let vID else {
+                    continuation.resume(throwing: AuthError.unableToFetchVID)
+                    return
+                }
+                continuation.resume(returning: vID)
+            }
+        }
+        
+        let code: String = await withCheckedContinuation { continuation in
+            DispatchQueue.main.sync {
+                self.awaitingVerificationCodeContinuation = continuation
+            }
+        }
+        DispatchQueue.main.sync {
+            self.awaitingVerificationCodeContinuation = nil
+        }
+        let credential = PhoneAuthProvider.provider().credential(withVerificationID: token, verificationCode: code)
+        return (try await Auth.auth().signIn(with: credential)).user
+    }
+    
+    enum AuthError: Error {
+        case unableToFetchVID
     }
     
     enum USGSDataError: String, LocalizedError {
