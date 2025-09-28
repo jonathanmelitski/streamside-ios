@@ -55,7 +55,7 @@ struct WidgetSettingsView: View {
                     withAnimation {
                         location = location.withUpdatedSettings { settings in
                             let seriesIndex = settings.graphSettings.series.firstIndex(where: { $0.usgsGraphedElement.code == series.usgsGraphedElement.code })!
-                            settings.graphSettings.series[seriesIndex].graphForegroundColor = GraphColor(from: new)
+                            settings.graphSettings.series[seriesIndex].graphForegroundColor = CodableColor(from: new)
                         }
                     }
                 })

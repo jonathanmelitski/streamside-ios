@@ -13,7 +13,7 @@ struct StreamConditionsView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 0) {
                 ForEach(vm.favoriteLocations.sorted(by: {
                     if vm.widgetPreferredLocation == $0 { return true }
                     if vm.widgetPreferredLocation == $1 { return false }
@@ -61,6 +61,15 @@ struct StreamConditionsView: View {
                     
                     .padding()
                     .shadow(radius: 8)
+                }
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    vm.nav.append("ADD NEW")
+                } label: {
+                    Image(systemName: "plus")
                 }
             }
         }

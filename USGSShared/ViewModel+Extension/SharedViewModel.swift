@@ -17,13 +17,16 @@ public class SharedViewModel: ObservableObject {
     static let favoritesKey = "USGSApp-Favorites"
     static let widgetPreferenceKey = "USGSApp-WidgetPreference"
     static let cacheKey = "USGSApp-Data"
+    static let coordinatesStorageKey = "USGSApp-Coordinates"
     
     @Published public private(set) var favoriteLocations: [String] = []
     @Published public private(set) var locationData: [String : Location] = [:]
-    @Published public var selectedTab: SharedViewModel.Tab = .locations
+    @Published public var selectedTab: SharedViewModel.Tab = .conditions
     @Published public var nav: NavigationPath = .init()
     @Published public var allLocations: [BasicLocation] = []
     @Published public var widgetPreferredLocation: String?
+    
+    @Published public var userSavedCoordinates: [UserSavedCoordinate] = []
     
     static let data = UserDefaults(suiteName: "group.com.jmelitski.USGS")
     
@@ -35,12 +38,15 @@ public class SharedViewModel: ObservableObject {
     public func resetState(completion: (() -> ())? = nil) {
         let locs = self.getLocs() ?? []
         let dict = self.getDict() ?? [:]
+        let coords = self.getCoordinates() ?? []
         
         self.favoriteLocations = locs
         self.locationData = dict
+        self.userSavedCoordinates = coords
+        
         self.widgetPreferredLocation = Self.data?.string(forKey: Self.widgetPreferenceKey)
         
-        if let first = self.favoriteLocations.first {
+        if !self.favoriteLocations.isEmpty {
             selectedTab = .conditions
         }
         
@@ -103,7 +109,7 @@ public class SharedViewModel: ObservableObject {
     }
     
     public enum Tab {
-        case conditions, settings, locations
+        case conditions, maps, fish, trips
     }
     
     @MainActor public func refreshData() async {

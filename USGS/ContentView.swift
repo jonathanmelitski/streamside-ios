@@ -14,24 +14,26 @@ struct ContentView: View {
     
     var body: some View {
         TabView(selection: $vm.selectedTab) {
-            Tab("Search", systemImage: "magnifyingglass", value: .locations) {
-                NavigationStack {
-                    SearchView()
-                        .navigationDestination(for: Location.self) { loc in
-                            StreamConditionsFullscreenView(location: loc)
-                        }
-                }
-            }
             Tab("Conditions", systemImage: "figure.fishing", value: .conditions) {
                 NavigationStack(path: $vm.nav) {
                     StreamConditionsView()
                         .navigationDestination(for: Location.self) { loc in
                             StreamConditionsFullscreenView(location: loc)
                         }
+                        .navigationDestination(for: String.self) { str in
+                            switch str {
+                            case "ADD NEW":
+                                SearchView()
+                            default:
+                                exit(EXIT_FAILURE)
+                            }
+                        }
                 }
             }
-            Tab("Options", systemImage: "gear", value: .settings) {
-                Text("Settings!")
+            Tab("My Map", systemImage: "map", value: .maps) {
+                NavigationStack {
+                    UserPersonalMapView()
+                }
             }
         }
         .tabViewStyle(.sidebarAdaptable)
@@ -40,6 +42,9 @@ struct ContentView: View {
             Task {
                 await vm.refreshData()
             }
+        }
+        .onChange(of: vm.selectedTab) {
+            self.vm.nav.removeLast(vm.nav.count)
         }
         .onOpenURL { url in
             // Widget handling
