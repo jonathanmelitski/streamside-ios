@@ -43,11 +43,11 @@ public struct GraphSettings: Codable, Hashable {
 public struct GraphSeries: Codable, Identifiable, Hashable {
     public var id = UUID()
     public let usgsGraphedElement: LocationDataMetricDescriptor
-    public var graphForegroundColor: GraphColor
+    public var graphForegroundColor: CodableColor
     public var graphPeakValues: Bool
     
     public init(usgsGraphedElement: LocationDataMetricDescriptor,
-         graphForegroundColor: GraphColor = Color.blue.cgColor?.graphColor ?? GraphColor(red: 0.02, green: 0.49, blue: 1.0, alpha: 1.0),
+         graphForegroundColor: CodableColor = Color.blue.cgColor?.graphColor ?? CodableColor(red: 0.02, green: 0.49, blue: 1.0, alpha: 1.0),
          graphPeakValues: Bool = false) {
         self.usgsGraphedElement = usgsGraphedElement
         self.graphForegroundColor = graphForegroundColor
@@ -55,45 +55,11 @@ public struct GraphSeries: Codable, Identifiable, Hashable {
     }
 }
 
-public struct GraphColor: Codable, Hashable {
-    public let red: CGFloat
-    public let green: CGFloat
-    public let blue: CGFloat
-    public let alpha: CGFloat
-    
-    public init(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) {
-        self.red = red
-        self.green = green
-        self.blue = blue
-        self.alpha = alpha
-    }
-    
-    public init(from color: Color) {
-        var red: CGFloat = 0
-        var green: CGFloat = 0
-        var blue: CGFloat = 0
-        var alpha: CGFloat = 1
-        if UIColor(color).getRed(&red, green: &green, blue: &blue, alpha: &alpha) {
-            self.red = red
-            self.green = green
-            self.blue = blue
-            self.alpha = alpha
-        } else {
-            self.red = 0
-            self.green = 0
-            self.blue = 0
-            self.alpha = 1
-        }
-    }
-    
-    public var toSwiftUIColor: Color {
-        return Color(red: self.red, green: self.green, blue: self.blue, opacity: self.alpha)
-    }
-}
+
 
 public extension CGColor {
-    var graphColor: GraphColor {
+    var graphColor: CodableColor {
         // Unwrap is okay because I'm defining all color values, so I am certain that four components exist
-        return GraphColor(red: self.components![0], green: self.components![1], blue: self.components![2], alpha: self.components![3])
+        return CodableColor(red: self.components![0], green: self.components![1], blue: self.components![2], alpha: self.components![3])
     }
 }

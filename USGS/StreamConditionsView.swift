@@ -64,6 +64,15 @@ struct StreamConditionsView: View {
                 }
             }
         }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    vm.nav.append("ADD NEW")
+                } label: {
+                    Image(systemName: "plus")
+                }
+            }
+        }
         .navigationTitle("My Locations")
     }
 }

@@ -42,37 +42,39 @@ struct SearchView: View {
             VStack {
                 Spacer()
                 if let selectedLocationData {
-                    MediumWidgetView(data: selectedLocationData)
-                        .frame(height: 150)
-                        .background {
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(LinearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom))
-                        }
-                        .overlay {
-                            HStack {
-                                Spacer()
-                                VStack {
-                                    Button {
-                                        if vm.favoriteLocations.contains(where: { $0 == selectedLocation?.id }) {
-                                            vm.removeFavoriteLocation(selectedLocation!.id)
-                                        } else {
-                                            vm.addFavoriteLocation(selectedLocation!.id)
-                                        }
-                                        
-                                    } label: {
-                                        Image(systemName: vm.favoriteLocations.contains(where: { $0 == selectedLocation?.id }) ? "star.fill" : "star")
-                                            .foregroundStyle(.yellow)
-                                            .font(.title)
-                                    }
-                                    .padding()
-                                    
+                    NavigationLink(value: selectedLocationData) {
+                        MediumWidgetView(data: selectedLocationData)
+                            .frame(height: 150)
+                            .background {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(LinearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom))
+                            }
+                            .overlay {
+                                HStack {
                                     Spacer()
+                                    VStack {
+                                        Button {
+                                            if vm.favoriteLocations.contains(where: { $0 == selectedLocation?.id }) {
+                                                vm.removeFavoriteLocation(selectedLocation!.id)
+                                            } else {
+                                                vm.addFavoriteLocation(selectedLocation!.id)
+                                            }
+                                            
+                                        } label: {
+                                            Image(systemName: vm.favoriteLocations.contains(where: { $0 == selectedLocation?.id }) ? "star.fill" : "star")
+                                                .foregroundStyle(.yellow)
+                                                .font(.title)
+                                        }
+                                        .padding()
+                                        
+                                        Spacer()
+                                    }
                                 }
                             }
-                        }
-                        .padding()
-                        .shadow(radius: 8)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                            .padding()
+                            .shadow(radius: 8)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
                 }
             }
         }
@@ -109,6 +111,8 @@ struct SearchView: View {
             LocationSearchSheetView(selectedLocation: $selectedLocation)
                 .padding()
         }
+        .navigationTitle("Add New Location")
+        .navigationBarTitleDisplayMode(.inline)
     }
     
     func filter(_ ctx: MapCameraUpdateContext) {
