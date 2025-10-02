@@ -23,36 +23,26 @@ struct UserPersonalMapView: View {
         MapReader { reader in
             Map {
                 ForEach(vm.userSavedCoordinates) { coord in
-                    Annotation("", coordinate: coord.location) {
-                        VStack {
-                            Circle()
-                                .fill(LinearGradient(colors: [
-                                    coord.color.toSwiftUIColor.mix(with: .white, by: 0.3),
-                                    coord.color.toSwiftUIColor
-                                ], startPoint: .top, endPoint: .bottom))
-                                .frame(width: CGFloat(annotationSize))
-                                .overlay {
-                                    Image(systemName: coord.iconString)
-                                        .font(.caption)
-                                        .foregroundStyle(.white)
-                                }
-                                .shadow(radius: 4)
-                            if showLabels {
-                                Text(coord.name)
+                    Annotation(coord.name, coordinate: coord.location) {
+                        Circle()
+                            .fill(LinearGradient(colors: [
+                                coord.color.toSwiftUIColor.mix(with: .white, by: 0.3),
+                                coord.color.toSwiftUIColor
+                            ], startPoint: .top, endPoint: .bottom))
+                            .frame(width: CGFloat(annotationSize))
+                            .overlay {
+                                Image(systemName: coord.iconString)
                                     .font(.caption)
-                                    .multilineTextAlignment(.center)
-                                    .bold()
-                                    .shadow(color: Color(UIColor.systemBackground), radius: 4)
+                                    .foregroundStyle(.white)
                             }
-                        }
-                        .padding()
-                        .onTapGesture {
-                            withAnimation {
-                                self.selectedCoordinate = coord
+                            .shadow(radius: 4)
+                            .onTapGesture {
+                                withAnimation {
+                                    self.selectedCoordinate = coord
+                                }
                             }
-                        }
                     }
-                    .annotationTitles(.hidden)
+                    .annotationTitles(showLabels ? .automatic : .hidden)
                 }
                 if showGauges {
                     ForEach(vm.locationData.values.sorted(by: { $0.name < $1.name })) { loc in
@@ -61,23 +51,16 @@ struct UserPersonalMapView: View {
                     }
                 }
                 if let highlightedLocation {
-                    Annotation("", coordinate: highlightedLocation) {
-                        VStack {
-                            Image(systemName: "fish")
-                                .font(.caption)
-                                .foregroundStyle(.white)
-                                .padding(4)
-                                .background {
-                                    Circle()
-                                        .fill(LinearGradient(colors: [Color.pink, Color.red], startPoint: .top, endPoint: .bottom))
-                                }
-                                .shadow(radius: 4)
-                            Text("Drag to location\nthen press \"Save\"")
-                                .font(.caption)
-                                .multilineTextAlignment(.center)
-                                .bold()
-                                .shadow(color: Color(UIColor.systemBackground), radius: 4)
-                        }
+                    Annotation("Drag to location\nthen press \"Save\"", coordinate: highlightedLocation) {
+                        Image(systemName: "fish")
+                            .font(.caption)
+                            .foregroundStyle(.white)
+                            .padding(4)
+                            .background {
+                                Circle()
+                                    .fill(LinearGradient(colors: [Color.pink, Color.red], startPoint: .top, endPoint: .bottom))
+                            }
+                            .shadow(radius: 4)
                         .padding()
                         .gesture(
                             DragGesture(coordinateSpace: .global)
@@ -87,8 +70,7 @@ struct UserPersonalMapView: View {
                         )
                         
                     }
-                    .annotationSubtitles(.hidden)
-                    .annotationTitles(.hidden)
+                    .annotationTitles(showLabels ? .automatic : .hidden)
                 }
             }
             .toolbar {
