@@ -53,15 +53,15 @@ struct SearchView: View {
                                 HStack {
                                     Spacer()
                                     VStack {
+                                        let isFavorite = (vm.currentProfile?.gauges ?? []).contains(where: { $0.id == selectedLocation?.id })
                                         Button {
-                                            if vm.favoriteLocations.contains(where: { $0 == selectedLocation?.id }) {
+                                            if isFavorite {
                                                 vm.removeFavoriteLocation(selectedLocation!.id)
                                             } else {
-                                                vm.addFavoriteLocation(selectedLocation!.id)
+                                                vm.addFavoriteLocation(selectedLocationData)
                                             }
-                                            
                                         } label: {
-                                            Image(systemName: vm.favoriteLocations.contains(where: { $0 == selectedLocation?.id }) ? "star.fill" : "star")
+                                            Image(systemName: isFavorite ? "star.fill" : "star")
                                                 .foregroundStyle(.yellow)
                                                 .font(.title)
                                         }

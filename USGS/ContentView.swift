@@ -13,7 +13,7 @@ struct ContentView: View {
     @ObservedObject var vm = SharedViewModel.shared
     
     var body: some View {
-        if let user = vm.currentUser {
+        if vm.currentProfile != nil {
             LoggedInView()
         } else {
             LandingView()

@@ -9,8 +9,8 @@ import Foundation
 import Combine
 import SwiftUI
 import WidgetKit
-import FirebaseDatabase
-import FirebaseAuth
+internal import FirebaseDatabase
+internal import FirebaseAuth
 
 public class SharedViewModel: ObservableObject {
     public static var shared = SharedViewModel()
@@ -20,55 +20,64 @@ public class SharedViewModel: ObservableObject {
     static let cacheKey = "USGSApp-Data"
     static let coordinatesStorageKey = "USGSApp-Coordinates"
     static let authenticationCredentialKey = "USGSApp-AuthenticationCredential"
-    
-    @Published public private(set) var favoriteLocations: [String] = []
-    @Published public private(set) var locationData: [String : Location] = [:]
+    static let profileKey = "USGSApp-Profile"
+
     @Published public var selectedTab: SharedViewModel.Tab = .conditions
     @Published public var nav: NavigationPath = .init()
     @Published public var allLocations: [BasicLocation] = []
     @Published public var widgetPreferredLocation: String?
     
-    @Published public var currentUser: User? = nil
-    
-    @Published public var userSavedCoordinates: [UserSavedCoordinate] = []
+    @Published public var currentProfile: Profile? = nil
     
     @Published public var awaitingVerificationCodeContinuation: (CheckedContinuation<String, Never>)? = nil
     
     static let data = UserDefaults(suiteName: "group.com.jmelitski.USGS")
-    
+    var profileUpdater: (any Cancellable)? = nil
     
     init() {
         resetState()
-        handleAuth()
+        handleProfile()
+        profileUpdater = $currentProfile.sink { newProfile in
+            let data = (try? JSONEncoder().encode(newProfile)) ?? Data()
+            Self.data?.set(data, forKey: Self.profileKey)
+            if let newProfile, newProfile.isSufficientlyDifferentFrom(otherProfile: self.currentProfile) {
+                DispatchQueue.global(qos: .utility).async {
+                    Task {
+                        try? await StreamsideFirebase.saveProfile(newProfile)
+                    }
+                }
+            }
+            WidgetCenter.shared.reloadTimelines(ofKind: "USGS_Widget")
+        }
     }
     
-    func handleAuth() {
+    func handleProfile() {
+        self.currentProfile = try? JSONDecoder().decode(Profile.self, from: Self.data?.data(forKey: Self.profileKey) ?? Data())
+        
+        guard let id = Bundle.main.bundleIdentifier, !id.hasSuffix("Widget") else { return }
         if let user = Auth.auth().currentUser {
-            self.currentUser = user
+            Task {
+                // not sure if I want silently fail here
+                if let profile = try? await StreamsideFirebase.getProfile() {
+                    DispatchQueue.main.sync {
+                        self.currentProfile = profile
+                    }
+                }
+            }
         }
     }
     
     public func requestNewSignIn(with phoneNumber: String) async throws {
         let user = try await self.newSignIn(phoneNumber: phoneNumber)
+        let profile = try await StreamsideFirebase.getProfile()
         DispatchQueue.main.sync {
-            self.currentUser = user
+            self.currentProfile = profile
         }
     }
     
     public func resetState(completion: (() -> ())? = nil) {
-        let locs = self.getLocs() ?? []
-        let dict = self.getDict() ?? [:]
-        let coords = self.getCoordinates() ?? []
-        
-        self.favoriteLocations = locs
-        self.locationData = dict
-        self.userSavedCoordinates = coords
-        
+        self.handleProfile()
         self.widgetPreferredLocation = Self.data?.string(forKey: Self.widgetPreferenceKey)
-        
-        if !self.favoriteLocations.isEmpty {
-            selectedTab = .conditions
-        }
         
         Task { @MainActor in
             await self.refreshData()
@@ -76,22 +85,12 @@ public class SharedViewModel: ObservableObject {
         }
     }
     
-    public func addFavoriteLocation(_ id: String) {
-        self.favoriteLocations.append(id)
-        self.saveLocs()
-        Task { @MainActor in
-            if let data = try? await self.fetchLocationData(id) {
-                self.locationData.updateValue(data, forKey: id)
-                self.saveDict()
-            }
-        }
+    public func addFavoriteLocation(_ location: Location) {
+        self.currentProfile?.gauges.append(location)
     }
     
     public func removeFavoriteLocation(_ id: String) {
-        self.favoriteLocations.removeAll(where: { $0 == id })
-        self.locationData.removeValue(forKey: id)
-        self.saveDict()
-        self.saveLocs()
+        self.currentProfile?.gauges.removeAll(where: { $0.id == id })
     }
     
     public func setPreferredWidgetLocation(_ id: String?) {
@@ -123,33 +122,29 @@ public class SharedViewModel: ObservableObject {
         }
     }
     
-    public func saveLocationData(_ data: Location, for id: String) {
-        self.locationData.updateValue(data, forKey: id)
-        self.saveDict()
-    }
-    
     public enum Tab {
         case conditions, maps, fish, trips
     }
     
     @MainActor public func refreshData() async {
-        let keys = self.favoriteLocations
-        self.locationData = await withTaskGroup(of: (String, Location?).self, returning: [String : Location].self) { group in
-            keys.forEach { key in
-                group.addTask {
-                    return (key, try? await self.fetchLocationData(key))
-                }
-            }
-            
-            var finalDict: [String: Location] = [:]
-            for await result in group {
-                if let loc = result.1 {
-                    finalDict.updateValue(loc, forKey: result.0)
-                }
-            }
-            return finalDict
-        }
-        self.saveDict()
+        let keys = (self.currentProfile?.gauges ?? []).flatMap({ $0.id })
+        
+//        self.locationData = await withTaskGroup(of: (String, Location?).self, returning: [String : Location].self) { group in
+//            keys.forEach { key in
+//                group.addTask {
+//                    return (key, try? await self.fetchLocationData(key))
+//                }
+//            }
+//            
+//            var finalDict: [String: Location] = [:]
+//            for await result in group {
+//                if let loc = result.1 {
+//                    finalDict.updateValue(loc, forKey: result.0)
+//                }
+//            }
+//            return finalDict
+//        }
+//        self.saveDict()
     }
     
     @discardableResult
@@ -201,36 +196,6 @@ public class SharedViewModel: ObservableObject {
         var errorDescription: String? {
             return self.rawValue
         }
-    }
-    
-    func saveLocs() {
-        let enc = JSONEncoder()
-        let data = try? enc.encode(self.favoriteLocations)
-        Self.data?.set(data, forKey: Self.favoritesKey)
-    }
-    
-    func getLocs() -> [String]? {
-        guard let data = Self.data?.value(forKey: Self.favoritesKey) as? Data else {
-            return nil
-        }
-        let dec = JSONDecoder()
-        return try? dec.decode([String].self, from: data)
-    }
-    
-    func saveDict() {
-        let enc = JSONEncoder()
-        let data = try? enc.encode(self.locationData)
-        Self.data?.set(data, forKey: Self.cacheKey)
-        
-        WidgetCenter.shared.reloadTimelines(ofKind: "USGS_Widget")
-    }
-    
-    func getDict() -> [String: Location]? {
-        guard let data = Self.data?.value(forKey: Self.cacheKey) as? Data else {
-            return nil
-        }
-        let dec = JSONDecoder()
-        return try? dec.decode([String: Location].self, from: data)
     }
     
 }

@@ -70,8 +70,8 @@ public struct Location: Codable, Hashable, Equatable, Identifiable {
         self.location = location
         self.metrics = metrics
         
-        if let prevLoc = SharedViewModel.shared.locationData[id] {
-            self.settings = prevLoc.settings
+        if let profile = SharedViewModel.shared.currentProfile, let gauge = profile.gauges.first(where: { $0.id == id }) {
+            self.settings = gauge.settings
         } else {
             self.settings = LocationSettings(defaultSettingsFrom: metrics)
         }

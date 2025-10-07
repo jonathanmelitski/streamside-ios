@@ -34,10 +34,6 @@ struct LoggedInView: View {
                     UserPersonalMapView()
                 }
             }
-            
-            Tab("Auth Test", systemImage: "gearshape", value: .fish) {
-                AuthTestView()
-            }
         }
         .tabViewStyle(.sidebarAdaptable)
         .environmentObject(vm)
@@ -70,10 +66,9 @@ struct LoggedInView: View {
             }
             
             vm.selectedTab = .conditions
-            if let loc = vm.locationData[locationId] {
+            if let loc = vm.currentProfile?.gauges.first(where: { $0.id == locationId }) {
                 vm.nav.append(loc)
             }
-            
         }
     }
 }

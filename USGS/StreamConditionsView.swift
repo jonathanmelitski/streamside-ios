@@ -14,19 +14,18 @@ struct StreamConditionsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                ForEach(vm.favoriteLocations.sorted(by: {
-                    if vm.widgetPreferredLocation == $0 { return true }
-                    if vm.widgetPreferredLocation == $1 { return false }
-                    return $0 < $1
+                ForEach((vm.currentProfile?.gauges ?? []).sorted(by: {
+                    if vm.widgetPreferredLocation == $0.id { return true }
+                    if vm.widgetPreferredLocation == $1.id { return false }
+                    return $0.id < $1.id
                 }), id: \.self) { el in
                     Group {
-                        if let kv = vm.locationData.first(where: { $0.key == el }) {
-                            let val = kv.value
-                            NavigationLink(value: val) {
-                                MediumWidgetView(data: val)
+                        if let value = (vm.currentProfile?.gauges ?? []).first(where: { $0.id == el.id }) {
+                            NavigationLink(value: value) {
+                                MediumWidgetView(data: value)
                             }
                         } else {
-                            Text("Unable to fetch data for \(el)")
+                            Text("Unable to fetch data")
                         }
                     }
                     .overlay {
@@ -35,17 +34,17 @@ struct StreamConditionsView: View {
                             VStack {
                                 Button {
                                     withAnimation {
-                                        if vm.widgetPreferredLocation == el {
+                                        if vm.widgetPreferredLocation == el.id {
                                             vm.setPreferredWidgetLocation(nil)
                                         } else {
-                                            vm.setPreferredWidgetLocation(el)
+                                            vm.setPreferredWidgetLocation(el.id)
                                         }
                                     }
                                     
                                 } label: {
-                                    Image(systemName: vm.widgetPreferredLocation == el ? "crown.fill" : "crown")
+                                    Image(systemName: vm.widgetPreferredLocation == el.id ? "crown.fill" : "crown")
                                         .foregroundStyle(.yellow)
-                                        .opacity(vm.widgetPreferredLocation == el ? 1.0 : 0.3)
+                                        .opacity(vm.widgetPreferredLocation == el.id ? 1.0 : 0.3)
                                 }
                                 
                                 Spacer()

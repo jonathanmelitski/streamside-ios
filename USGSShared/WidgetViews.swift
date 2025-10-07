@@ -80,11 +80,14 @@ public struct MediumWidgetView: View {
                 Chart {
                     ForEach(data.settings.graphSettings.series) { series in
                         if let metric = data.metrics.first(where: { $0.descriptor == series.usgsGraphedElement }) {
+                            let minValue = metric.descriptorSpecificValues.map(\.value).compactMap(Double.init).min() ?? -1
+                            let maxValue = metric.descriptorSpecificValues.map(\.value).compactMap(Double.init).max() ?? Double.infinity
                             ForEach(metric.descriptorSpecificValues) { value in
                                 if let val = Double(value.value) {
+                                    let normalized: Double = (val - minValue) / (maxValue - minValue)
                                     LineMark(
                                         x: .value("Date", value.date),
-                                        y: .value("Value", val),
+                                        y: .value("Value", normalized),
                                         series: .value("Metric", metric.descriptor.name ?? ""))
                                         .foregroundStyle(series.graphForegroundColor.toSwiftUIColor)
                                 }
@@ -92,7 +95,7 @@ public struct MediumWidgetView: View {
                         }
                     }
                 }
-                .chartYScale(domain: .automatic(includesZero: false))
+                .chartYScale(domain: 0 ... 1)
                 .chartYAxis(.hidden)
                 .chartXAxis(.visible)
                 .chartXAxis {
@@ -119,15 +122,16 @@ public struct MediumWidgetView: View {
                 Spacer()
             }
             HStack {
-                ForEach(data.settings.displaySettings.valuesToShow, id: \.code) { descriptor in
+                ForEach(data.settings.displaySettings.series, id: \.self) { series in
                     Spacer()
-                    if let metric = data.metrics.first(where: { $0.descriptor.code == descriptor.code }),
+                    if let metric = data.metrics.first(where: { $0.descriptor.code == series.metric.code }),
                        let val = metric.descriptorSpecificCurrentValueString {
+                        let label = series.labelOverride ?? metric.descriptorSpecificLabelShort
                         VStack(spacing: 2) {
                             Text(val)
                                 .font(.system(size: 36, weight: .bold))
                                 .shadow(radius: 8)
-                            Text(metric.descriptorSpecificLabelShort)
+                            Text(label)
                                 .font(.system(size: 12, weight: .bold))
                                 .shadow(radius: 4)
                         }

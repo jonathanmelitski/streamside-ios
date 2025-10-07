@@ -22,7 +22,7 @@ struct UserPersonalMapView: View {
     var body: some View {
         MapReader { reader in
             Map {
-                ForEach(vm.userSavedCoordinates) { coord in
+                ForEach(vm.currentProfile?.markers ?? []) { coord in
                     Annotation(coord.name, coordinate: coord.location) {
                         Circle()
                             .fill(LinearGradient(colors: [
@@ -45,7 +45,7 @@ struct UserPersonalMapView: View {
                     .annotationTitles(showLabels ? .automatic : .hidden)
                 }
                 if showGauges {
-                    ForEach(vm.locationData.values.sorted(by: { $0.name < $1.name })) { loc in
+                    ForEach(vm.currentProfile?.gauges.sorted(by: { $0.name < $1.name }) ?? []) { loc in
                         Marker(coordinate: CLLocationCoordinate2D(latitude: loc.location.latitude, longitude: loc.location.longitude), label: { Text(loc.name.uppercased()) })
                             .tag(loc)
                     }

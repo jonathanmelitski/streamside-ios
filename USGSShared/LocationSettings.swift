@@ -10,7 +10,7 @@ import SwiftUI
 
 public struct LocationSettings: Codable, Hashable {
     init(defaultSettingsFrom metrics: [LocationDataMetric]) {
-        self.displaySettings = .init(valuesToShow: metrics.count > 0 ? [metrics.first!.descriptor] : [])
+        self.displaySettings = .init(series: metrics.count > 0 ? [.init(metric: metrics.first!.descriptor, labelOverride: nil)] : [])
         
         let defaultSeries = metrics.first { metric in
             USGSDataSeries.allCases.contains(where: { series in
@@ -33,7 +33,17 @@ public struct LocationSettings: Codable, Hashable {
 
 public struct DisplaySettings: Codable, Hashable {
     // how do you define default display settings, probably just the
-    public var valuesToShow: [LocationDataMetricDescriptor]
+    public var series: [DisplaySeries]
+}
+
+public struct DisplaySeries: Codable, Hashable {
+    public let metric: LocationDataMetricDescriptor
+    public var labelOverride: String?
+    
+    public init(metric: LocationDataMetricDescriptor, labelOverride: String? = nil) {
+        self.metric = metric
+        self.labelOverride = labelOverride
+    }
 }
 
 public struct GraphSettings: Codable, Hashable {
