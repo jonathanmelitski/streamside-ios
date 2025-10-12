@@ -5,8 +5,9 @@
 //  Created by Jonathan Melitski on 10/6/25.
 //
 
-public struct Profile: Identifiable, Codable {
+public struct Profile: Identifiable, Codable, EncodableWithConfiguration {
     public let id: String
+    public var lastUpdated: Date?
     public var firstName: String?
     public var lastName: String?
     public var gauges: [Location]
@@ -30,5 +31,45 @@ public struct Profile: Identifiable, Codable {
         }
         
         return false
+    }
+    
+    public func encode(to encoder: any Encoder, configuration: ProfileEncodingConfiguration) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        if let timestampD = self.lastUpdated?.timeIntervalSince1970 {
+            let timestamp = Int(timestampD)
+            try container.encode(timestamp, forKey: .lastUpdated)
+        }
+        try container.encodeIfPresent(firstName, forKey: .firstName)
+        try container.encodeIfPresent(lastName, forKey: .lastName)
+        try container.encode(gauges, forKey: .gauges, configuration: configuration)
+        try container.encode(markers, forKey: .markers)
+    }
+    
+    public func encode(to encoder: any Encoder) throws {
+        try encode(to: encoder, configuration: .init(firebase: false))
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.firstName = try container.decodeIfPresent(String.self, forKey: .firstName)
+        self.lastName = try container.decodeIfPresent(String.self, forKey: .lastName)
+        self.gauges = (try container.decodeIfPresent([Location].self, forKey: .gauges)) ?? []
+        self.markers = (try container.decodeIfPresent([UserSavedCoordinate].self, forKey: .markers)) ?? []
+        if let timestamp = try container.decodeIfPresent(TimeInterval.self, forKey: .lastUpdated) {
+            self.lastUpdated = Date(timeIntervalSince1970: timestamp)
+        } else {
+            self.lastUpdated = nil
+        }
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case id = "uid"
+        case firstName = "firstName"
+        case lastName = "lastName"
+        case gauges = "gauges"
+        case markers = "markers"
+        case lastUpdated = "lastUpdated"
     }
 }

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import USGSShared
+import FirebaseAuth
 
 struct StreamConditionsView: View {
     @EnvironmentObject var vm: SharedViewModel
@@ -69,6 +70,11 @@ struct StreamConditionsView: View {
                     vm.nav.append("ADD NEW")
                 } label: {
                     Image(systemName: "plus")
+                }
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button("Logout") {
+                    try? vm.logOut()
                 }
             }
         }

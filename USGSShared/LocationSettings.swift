@@ -26,6 +26,18 @@ public struct LocationSettings: Codable, Hashable {
         self.graphSettings = .init(series: graphSeries)
     }
     
+    // Required because firebase/python condenses data when storing
+    init(isEmpty empty: Bool) {
+        self.graphSettings = .init(series: [])
+        self.displaySettings = .init(series: [])
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.displaySettings = (try container.decodeIfPresent(DisplaySettings.self, forKey: .displaySettings)) ?? .init(series: [])
+        self.graphSettings = (try container.decodeIfPresent(GraphSettings.self, forKey: .graphSettings)) ?? .init(series: [])
+    }
+    
     public var displaySettings: DisplaySettings
     
     public var graphSettings: GraphSettings

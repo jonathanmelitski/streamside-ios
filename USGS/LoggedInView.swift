@@ -37,11 +37,6 @@ struct LoggedInView: View {
         }
         .tabViewStyle(.sidebarAdaptable)
         .environmentObject(vm)
-        .onAppear {
-            Task {
-                await vm.refreshData()
-            }
-        }
         .onChange(of: vm.selectedTab) {
             self.vm.nav.removeLast(vm.nav.count)
         }

@@ -29,40 +29,49 @@ public class SharedViewModel: ObservableObject {
     
     @Published public var currentProfile: Profile? = nil
     
-    @Published public var awaitingVerificationCodeContinuation: (CheckedContinuation<String, Never>)? = nil
+    @Published public var awaitingVerificationCodeContinuation: VerificationCodeStatus = .inactive
     
     static let data = UserDefaults(suiteName: "group.com.jmelitski.USGS")
     var profileUpdater: (any Cancellable)? = nil
     
     init() {
-        resetState()
-        handleProfile()
-        profileUpdater = $currentProfile.sink { newProfile in
-            let data = (try? JSONEncoder().encode(newProfile)) ?? Data()
-            Self.data?.set(data, forKey: Self.profileKey)
-            if let newProfile, newProfile.isSufficientlyDifferentFrom(otherProfile: self.currentProfile) {
-                DispatchQueue.global(qos: .utility).async {
-                    Task {
-                        try? await StreamsideFirebase.saveProfile(newProfile)
+        self.resetState {
+            self.profileUpdater = self.$currentProfile.sink { newProfile in
+                var new = newProfile
+                new?.lastUpdated = (newProfile?.isSufficientlyDifferentFrom(otherProfile: self.currentProfile) ?? true) ? Date.now : self.currentProfile?.lastUpdated
+                let data = (try? JSONEncoder().encode(new)) ?? Data()
+                Self.data?.set(data, forKey: Self.profileKey)
+                if let new, new.isSufficientlyDifferentFrom(otherProfile: self.currentProfile) {
+                    DispatchQueue.global(qos: .utility).async {
+                        Task {
+                            try? await StreamsideFirebase.saveProfile(new)
+                        }
                     }
                 }
+                WidgetCenter.shared.reloadTimelines(ofKind: "USGS_Widget")
             }
-            WidgetCenter.shared.reloadTimelines(ofKind: "USGS_Widget")
         }
     }
     
-    func handleProfile() {
-        self.currentProfile = try? JSONDecoder().decode(Profile.self, from: Self.data?.data(forKey: Self.profileKey) ?? Data())
+    @MainActor func handleProfile() async {
+        let currentProfile = self.currentProfile
         
         guard let id = Bundle.main.bundleIdentifier, !id.hasSuffix("Widget") else { return }
         if let user = Auth.auth().currentUser {
-            Task {
-                // not sure if I want silently fail here
-                if let profile = try? await StreamsideFirebase.getProfile() {
-                    DispatchQueue.main.sync {
-                        self.currentProfile = profile
+            do {
+                let profile = try await StreamsideFirebase.getProfile()
+                guard profile.lastUpdated ?? .distantFuture > currentProfile?.lastUpdated ?? .distantPast else {
+                    if let currentProfile {
+                        try await StreamsideFirebase.saveProfile(currentProfile)
                     }
+                    return
                 }
+                // ^^ weird shit happening with this
+                // need to decide who saves what, too many conflictng UserDefaults actions here.
+                
+                self.currentProfile = profile
+            } catch {
+                print(error)
             }
         }
     }
@@ -70,16 +79,26 @@ public class SharedViewModel: ObservableObject {
     public func requestNewSignIn(with phoneNumber: String) async throws {
         let user = try await self.newSignIn(phoneNumber: phoneNumber)
         let profile = try await StreamsideFirebase.getProfile()
-        DispatchQueue.main.sync {
+        DispatchQueue.main.async {
             self.currentProfile = profile
         }
     }
     
+    @MainActor public func logOut() throws {
+        // make sure we cancel any update tasks, otherwise we'll write nil to the server and delete someone's profile
+        Self.data?.set(nil, forKey: Self.profileKey)
+        try Auth.auth().signOut()
+        withAnimation {
+            self.currentProfile = nil
+        }
+    }
+    
     public func resetState(completion: (() -> ())? = nil) {
-        self.handleProfile()
         self.widgetPreferredLocation = Self.data?.string(forKey: Self.widgetPreferenceKey)
+        self.currentProfile = try? JSONDecoder().decode(Profile.self, from: Self.data?.data(forKey: Self.profileKey) ?? Data())
         
         Task { @MainActor in
+            await self.handleProfile()
             await self.refreshData()
             completion?()
         }
@@ -127,24 +146,20 @@ public class SharedViewModel: ObservableObject {
     }
     
     @MainActor public func refreshData() async {
-        let keys = (self.currentProfile?.gauges ?? []).flatMap({ $0.id })
-        
-//        self.locationData = await withTaskGroup(of: (String, Location?).self, returning: [String : Location].self) { group in
-//            keys.forEach { key in
-//                group.addTask {
-//                    return (key, try? await self.fetchLocationData(key))
-//                }
-//            }
-//            
-//            var finalDict: [String: Location] = [:]
-//            for await result in group {
-//                if let loc = result.1 {
-//                    finalDict.updateValue(loc, forKey: result.0)
-//                }
-//            }
-//            return finalDict
-//        }
-//        self.saveDict()
+        let locs = (self.currentProfile?.gauges ?? [])
+        self.currentProfile?.gauges = await withTaskGroup(of: Location.self, returning: [Location].self) { group in
+            locs.forEach { loc in
+                group.addTask {
+                    return ((try? await self.fetchLocationData(String(loc.id))) ?? loc)
+                }
+            }
+            
+            var results: [Location] = []
+            for await result in group {
+                results.append(result)
+            }
+            return results
+        }
     }
     
     @discardableResult
@@ -173,16 +188,32 @@ public class SharedViewModel: ObservableObject {
             }
         }
         
-        let code: String = await withCheckedContinuation { continuation in
-            DispatchQueue.main.sync {
-                self.awaitingVerificationCodeContinuation = continuation
+        var attempt = 1
+        while true {
+            let code: String = await withCheckedContinuation { continuation in
+                DispatchQueue.main.async {
+                    self.awaitingVerificationCodeContinuation = .awaiting(continuation: continuation, attempt: attempt)
+                }
             }
+            let credential = PhoneAuthProvider.provider().credential(withVerificationID: token, verificationCode: code)
+            do {
+                let user = (try await Auth.auth().signIn(with: credential)).user
+                return user
+            } catch AuthErrorCode.missingVerificationID {
+                attempt += 1
+            } catch AuthErrorCode.missingVerificationCode {
+                attempt += 1
+            } catch AuthErrorCode.invalidVerificationCode {
+                attempt += 1
+            } catch {
+                Task { @MainActor in
+                    withAnimation {
+                        self.awaitingVerificationCodeContinuation = .error(error: error)
+                    }
+                }
+            }
+            
         }
-        DispatchQueue.main.sync {
-            self.awaitingVerificationCodeContinuation = nil
-        }
-        let credential = PhoneAuthProvider.provider().credential(withVerificationID: token, verificationCode: code)
-        return (try await Auth.auth().signIn(with: credential)).user
     }
     
     enum AuthError: Error {
@@ -198,4 +229,28 @@ public class SharedViewModel: ObservableObject {
         }
     }
     
+}
+
+public enum VerificationCodeStatus: Equatable {
+    public static func == (lhs: VerificationCodeStatus, rhs: VerificationCodeStatus) -> Bool {
+        switch lhs {
+        case .awaiting(_, let att):
+            if case .awaiting(_, let attR) = rhs {
+                return att == attR
+            }
+        case .inactive:
+            if case .inactive = rhs {
+                return true
+            }
+        case .error(_):
+        if case .error(_) = rhs {
+            return true
+        }
+        }
+        return false
+    }
+    
+    case inactive
+    case awaiting(continuation: CheckedContinuation<String,Never>, attempt: Int)
+    case error(error: any Error)
 }
