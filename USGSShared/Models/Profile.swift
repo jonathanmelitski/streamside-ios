@@ -5,6 +5,8 @@
 //  Created by Jonathan Melitski on 10/6/25.
 //
 
+internal import FirebaseDatabase
+
 public struct Profile: Identifiable, Codable, EncodableWithConfiguration {
     public let id: String
     public var lastUpdated: Date?
@@ -62,6 +64,10 @@ public struct Profile: Identifiable, Codable, EncodableWithConfiguration {
         } else {
             self.lastUpdated = nil
         }
+    }
+    
+    init(from snapshot: DataSnapshot) throws {
+        
     }
     
     enum CodingKeys: String, CodingKey {

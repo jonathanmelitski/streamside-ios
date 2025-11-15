@@ -28,15 +28,19 @@ public class SharedViewModel: ObservableObject {
     @Published public var widgetPreferredLocation: String?
     
     @Published public var currentProfile: Profile? = nil
-    
     @Published public var awaitingVerificationCodeContinuation: VerificationCodeStatus = .inactive
     
     static let data = UserDefaults(suiteName: "group.com.jmelitski.USGS")
     var profileUpdater: (any Cancellable)? = nil
+    var profileRef: DatabaseReference? = nil
+    var profileObserver: UInt? = nil
     
     init() {
         self.resetState {
             self.profileUpdater = self.$currentProfile.sink { newProfile in
+                // update firebase
+                
+                
                 var new = newProfile
                 new?.lastUpdated = (newProfile?.isSufficientlyDifferentFrom(otherProfile: self.currentProfile) ?? true) ? Date.now : self.currentProfile?.lastUpdated
                 let data = (try? JSONEncoder().encode(new)) ?? Data()
@@ -50,28 +54,27 @@ public class SharedViewModel: ObservableObject {
                 }
                 WidgetCenter.shared.reloadTimelines(ofKind: "USGS_Widget")
             }
+            
+            self.profileRef = Database.database().reference()
+            
         }
     }
     
     @MainActor func handleProfile() async {
-        let currentProfile = self.currentProfile
-        
         guard let id = Bundle.main.bundleIdentifier, !id.hasSuffix("Widget") else { return }
         if let user = Auth.auth().currentUser {
-            do {
-                let profile = try await StreamsideFirebase.getProfile()
-                guard profile.lastUpdated ?? .distantFuture > currentProfile?.lastUpdated ?? .distantPast else {
-                    if let currentProfile {
-                        try await StreamsideFirebase.saveProfile(currentProfile)
-                    }
-                    return
+            self.profileRef = Database.database().reference().child("users").child(user.uid)
+            // establish a download reference
+            // establish an upload reference
+            self.profileUpdater = self.$currentProfile.sink { newProfile in
+                // send changes to server
+            }
+            self.profileObserver = self.profileRef?.observe(DataEventType.value) { snapshot in
+                // new changes from server
+                withAnimation {
+                    self.currentProfile = try? Profile.init(from: snapshot)
                 }
-                // ^^ weird shit happening with this
-                // need to decide who saves what, too many conflictng UserDefaults actions here.
                 
-                self.currentProfile = profile
-            } catch {
-                print(error)
             }
         }
     }
