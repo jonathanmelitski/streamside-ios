@@ -7,7 +7,7 @@
 
 internal import FirebaseDatabase
 
-public struct Profile: Identifiable, Codable, EncodableWithConfiguration {
+public struct Profile: Identifiable, Codable, EncodableWithConfiguration, Sendable {
     public let id: String
     public var lastUpdated: Date?
     public var firstName: String?
@@ -67,7 +67,19 @@ public struct Profile: Identifiable, Codable, EncodableWithConfiguration {
     }
     
     init(from snapshot: DataSnapshot) throws {
-        
+        guard let id = snapshot.childSnapshot(forPath: "uid").value as? String else {
+            // This will also enforce that the record exists, since
+            // the snapshot doesn't actually enforce that
+            throw ProfileError.invalidData
+        }
+        self.id = id
+        self.firstName = snapshot.childSnapshot(forPath: "first_name").value as? String
+        self.lastName = snapshot.childSnapshot(forPath: "last_name").value as? String
+        if let timestamp = snapshot.childSnapshot(forPath: "last_updated").value as? Int {
+            self.lastUpdated = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        }
+        self.gauges = (try? snapshot.childSnapshot(forPath: "gauges").data(as: [Location].self)) ?? []
+        self.markers = (try? snapshot.childSnapshot(forPath: "markers").data(as: [UserSavedCoordinate].self)) ?? []
     }
     
     enum CodingKeys: String, CodingKey {
@@ -78,4 +90,8 @@ public struct Profile: Identifiable, Codable, EncodableWithConfiguration {
         case markers = "markers"
         case lastUpdated = "lastUpdated"
     }
+}
+
+enum ProfileError: Error {
+    case invalidData
 }

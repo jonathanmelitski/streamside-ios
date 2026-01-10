@@ -41,7 +41,10 @@ struct Provider: AppIntentTimelineProvider {
             }
         }
         
-        let fetchedData = SharedViewModel.shared.locationData[configuration.location?.id ?? ""]
+        let fetchedData = SharedViewModel.shared.currentProfile?.gauges.first(where: { el in
+            configuration.location?.id != nil && el.id == configuration.location!.id
+        })
+        
         let currentDate = Date()
         let entry = SimpleEntry(date: currentDate, data: fetchedData)
         let nextRefresh = Calendar.current.date(byAdding: .minute, value: 15, to: currentDate)!

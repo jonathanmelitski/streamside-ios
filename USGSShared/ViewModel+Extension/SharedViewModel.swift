@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import SwiftUI
 import WidgetKit
+import CoreLocation
 internal import FirebaseDatabase
 internal import FirebaseAuth
 
@@ -35,10 +36,28 @@ public class SharedViewModel: ObservableObject {
     var profileObserver: UInt? = nil
     
     init() {
-        self.resetState {
+        self.resetState()
+    }
+    
+    @MainActor func handleProfile() async {
+        guard let id = Bundle.main.bundleIdentifier, !id.hasSuffix("Widget") else { return }
+        if let user = Auth.auth().currentUser {
+            self.profileRef = Database.database().reference().child("users").child(user.uid)
+            let initSnapshot = try? await self.profileRef?.getData()
+            if let initSnapshot {
+                do {
+                    self.currentProfile = try Profile.init(from: initSnapshot)
+                } catch {
+                    if self.currentProfile == nil {
+                        try? self.logOut()
+                        return
+                    }
+                }
+            }
+            // establish a download reference
+            // establish an upload reference
             self.profileUpdater = self.$currentProfile.sink { newProfile in
                 // update firebase
-                
                 
                 var new = newProfile
                 new?.lastUpdated = (newProfile?.isSufficientlyDifferentFrom(otherProfile: self.currentProfile) ?? true) ? Date.now : self.currentProfile?.lastUpdated
@@ -54,27 +73,28 @@ public class SharedViewModel: ObservableObject {
                 WidgetCenter.shared.reloadTimelines(ofKind: "USGS_Widget")
             }
             
-            self.profileRef = Database.database().reference()
-            
-        }
-    }
-    
-    @MainActor func handleProfile() async {
-        guard let id = Bundle.main.bundleIdentifier, !id.hasSuffix("Widget") else { return }
-        if let user = Auth.auth().currentUser {
-            self.profileRef = Database.database().reference().child("users").child(user.uid)
-            // establish a download reference
-            // establish an upload reference
-            self.profileUpdater = self.$currentProfile.sink { newProfile in
-                // send changes to server
-            }
-            self.profileObserver = self.profileRef?.observe(DataEventType.value) { snapshot in
-                // new changes from server
-                withAnimation {
-                    self.currentProfile = try? Profile.init(from: snapshot)
+            self.profileObserver = self.profileRef?.observe(DataEventType.value, with: { snapshot in
+                guard let newProfile = try? Profile.init(from: snapshot) else { return }
+                // if currentprofile is newer, it means that we have conflicting changes
+                // and should resort to the client as the source of truth. (because of the
+                // 5-second buffer).
+                
+                // do we consider this sufficiently-different function?
+                guard newProfile.isSufficientlyDifferentFrom(otherProfile: self.currentProfile) else { return }
+                
+                if let currentProfile = self.currentProfile,
+                   let newDate = newProfile.lastUpdated,
+                   let oldDate = currentProfile.lastUpdated,
+                   newDate < oldDate {
+                    return
                 }
                 
-            }
+                // new changes from server
+                withAnimation {
+                    self.currentProfile = newProfile
+                }
+            })
+            
         }
     }
     
@@ -83,25 +103,29 @@ public class SharedViewModel: ObservableObject {
         let profile = try await StreamsideFirebase.getProfile()
         DispatchQueue.main.async {
             self.currentProfile = profile
+            self.resetState()
         }
     }
     
     @MainActor public func logOut() throws {
         // make sure we cancel any update tasks, otherwise we'll write nil to the server and delete someone's profile
-        Self.data?.set(nil, forKey: Self.profileKey)
         try Auth.auth().signOut()
+        Self.data?.set(nil, forKey: Self.profileKey)
+        self.profileRef = nil
+        self.profileUpdater = nil
+        self.profileObserver = nil
         withAnimation {
             self.currentProfile = nil
         }
     }
     
     public func resetState(completion: (() -> ())? = nil) {
-        self.widgetPreferredLocation = Self.data?.string(forKey: Self.widgetPreferenceKey)
         self.currentProfile = try? JSONDecoder().decode(Profile.self, from: Self.data?.data(forKey: Self.profileKey) ?? Data())
         
         Task { @MainActor in
             await self.handleProfile()
             await self.refreshData()
+            WidgetCenter.shared.reloadTimelines(ofKind: "USGS_Widget")
             completion?()
         }
     }
@@ -138,7 +162,7 @@ public class SharedViewModel: ObservableObject {
     }
     
     public enum Tab {
-        case conditions, maps, fish, trips
+        case conditions, fish, trips, maps
     }
     
     @MainActor public func refreshData() async {
@@ -168,7 +192,7 @@ public class SharedViewModel: ObservableObject {
     }
     
     func newSignIn(phoneNumber: String) async throws -> User {
-        Auth.auth().settings?.isAppVerificationDisabledForTesting = true
+        Auth.auth().settings?.isAppVerificationDisabledForTesting = false
         let token: String = try await withCheckedThrowingContinuation { continuation in
             PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber) { vID, err in
                 if let err {

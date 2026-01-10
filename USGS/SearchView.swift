@@ -16,7 +16,7 @@ struct SearchView: View {
     @State var selectedLocation: BasicLocation? = nil
     @State var selectedLocationData: Location? = nil
     @State var showTextSearchSheet: Bool = false
-    @State var mapCameraPosition: MapCameraPosition = .automatic
+    @State var mapCameraPosition: MapCameraPosition = .userLocation(fallback: .automatic)
     var body: some View {
         ZStack {
             Map(position: $mapCameraPosition, selection: $selectedLocation) {
@@ -24,6 +24,9 @@ struct SearchView: View {
                     Marker(coordinate: CLLocationCoordinate2D(latitude: loc.geo.latitude, longitude: loc.geo.longitude), label: { Text(loc.name.uppercased()) })
                         .tag(loc)
                 }
+            }
+            .mapControls {
+                MapUserLocationButton()
             }
             .onMapCameraChange(frequency: .continuous) { ctx in
                 guard ctx.camera.distance < 200000 else { return }

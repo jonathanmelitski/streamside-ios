@@ -34,17 +34,13 @@ extension Location: AppEntity {
         public init() {}
         
         public func entities(for identifiers: [Location.ID]) async throws -> [Location] {
-            SharedViewModel.shared.favoriteLocations.filter { el in
-                identifiers.contains(where: { $0 == el })
-            }.compactMap {
-                SharedViewModel.shared.locationData[$0]
+            (SharedViewModel.shared.currentProfile?.gauges ?? []).filter { el in
+                identifiers.contains(where: { $0 == el.id })
             }
         }
         
         public func suggestedEntities() async throws -> [Location] {
-            SharedViewModel.shared.favoriteLocations.compactMap {
-                SharedViewModel.shared.locationData[$0]
-            }
+            (SharedViewModel.shared.currentProfile?.gauges ?? [])
         }
                 
         public func defaultResult() async -> Location? {

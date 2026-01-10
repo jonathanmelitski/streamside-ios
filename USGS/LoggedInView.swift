@@ -37,6 +37,7 @@ struct LoggedInView: View {
         }
         .tabViewStyle(.sidebarAdaptable)
         .environmentObject(vm)
+        .environmentObject(LocationManager.shared)
         .onChange(of: vm.selectedTab) {
             self.vm.nav.removeLast(vm.nav.count)
         }

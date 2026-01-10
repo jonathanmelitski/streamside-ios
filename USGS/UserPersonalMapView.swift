@@ -11,6 +11,7 @@ import MapKit
 
 struct UserPersonalMapView: View {
     @ObservedObject var vm = SharedViewModel.shared
+    @EnvironmentObject var loc: LocationManager
     @State var highlightedLocation: CLLocationCoordinate2D?
     @State var selectedCoordinate: UserSavedCoordinate?
     @State var detent: PresentationDetent = .medium
@@ -18,10 +19,24 @@ struct UserPersonalMapView: View {
     @AppStorage("annotationSize") var annotationSize: Int = 24
     @AppStorage("labelsOn") var showLabels: Bool = true
     @AppStorage("showFavoritedGauges") var showGauges: Bool = true
+    @AppStorage("mapStyle") var mapStyle: String = "standard"
+    
+    var uiMapStyle: MapStyle {
+        switch mapStyle {
+        case "satellite":
+            return .imagery
+        case "hybrid":
+            return .hybrid
+        default:
+            return .standard
+        }
+    }
+    @State private var cameraPosition: MapCameraPosition = .userLocation(followsHeading: true, fallback: .automatic)
     
     var body: some View {
         MapReader { reader in
-            Map {
+            Map(position: $cameraPosition) {
+                UserAnnotation()
                 ForEach(vm.currentProfile?.markers ?? []) { coord in
                     Annotation(coord.name, coordinate: coord.location) {
                         Circle()
@@ -37,6 +52,7 @@ struct UserPersonalMapView: View {
                             }
                             .shadow(radius: 4)
                             .onTapGesture {
+                                UIImpactFeedbackGenerator(style: .soft).impactOccurred()
                                 withAnimation {
                                     self.selectedCoordinate = coord
                                 }
@@ -73,6 +89,10 @@ struct UserPersonalMapView: View {
                     .annotationTitles(showLabels ? .automatic : .hidden)
                 }
             }
+            .mapControls {
+                MapUserLocationButton()
+            }
+            .mapStyle(uiMapStyle)
             .toolbar {
                 if highlightedLocation == nil {
                     ToolbarItem(placement: .primaryAction) {
@@ -96,6 +116,15 @@ struct UserPersonalMapView: View {
                                         self.annotationSize = Int(Double(self.annotationSize) / 1.2)
                                     }
                                 })
+                                Picker(selection: $mapStyle, label: Text("Map Style")) {
+                                    Text("Standard")
+                                        .tag("standard")
+                                    Text("Satellite")
+                                        .tag("satellite")
+                                    Text("Hybrid")
+                                        .tag("hybrid")
+                                }
+                                .pickerStyle(.segmented)
                             }
                             .padding()
                             .presentationCompactAdaptation(.popover)

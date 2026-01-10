@@ -6,6 +6,8 @@
 //
 import Combine
 import FirebaseFunctions
+internal import FirebaseDatabase
+internal import FirebaseAuth
 
 public extension StreamsideFirebase {
     static func getProfile() async throws -> Profile {
@@ -52,7 +54,10 @@ public extension StreamsideFirebase {
     
     private static func updateProfile(_ profile: Profile) async throws {
         guard let dict = profile.dictionary else { return }
-        let res = try await functions.httpsCallable("update_profile").call(dict)
+        guard let user = Auth.auth().currentUser else { return }
+        let reference = Database.database().reference().child("users").child(user.uid)
+        try reference.setValue(from: profile)
+        //let res = try await functions.httpsCallable("update_profile").call(dict)
         print("Updated Firebase")
     }
 }

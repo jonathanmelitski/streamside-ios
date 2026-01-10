@@ -13,13 +13,11 @@ struct StreamConditionsFullscreenView: View {
     @State var location: Location
     
     static let mainDimension: CGFloat = 140
-    @State var mapFocused = false
     @State var cameraPosition: MapCameraPosition
     @ObservedObject var vm = SharedViewModel.shared
     
     init(location: Location) {
         self.location = location
-        self.mapFocused = false
         self.cameraPosition = .camera(.init(centerCoordinate: CLLocationCoordinate2D(latitude: location.location.latitude, longitude: location.location.longitude), distance: 5000))
     }
     
@@ -28,18 +26,10 @@ struct StreamConditionsFullscreenView: View {
         ZStack {
             Map(position: $cameraPosition)
                 .ignoresSafeArea()
-                .disabled(!mapFocused)
-                .blur(radius: mapFocused ? 0 : 6)
-            if !mapFocused {
-                ScrollView {
-                    StreamConditionsDetailViewStack(location: $location)
-                }
-            }
-        }
-        .onChange(of: cameraPosition) {
-            guard cameraPosition != .camera(.init(centerCoordinate: CLLocationCoordinate2D(latitude: location.location.latitude, longitude: location.location.longitude), distance: 5000)) else { return }
-            withAnimation {
-                mapFocused = true
+                .disabled(true)
+                .blur(radius: 6)
+            ScrollView {
+                StreamConditionsDetailViewStack(location: $location)
             }
         }
         .onChange(of: location) {
@@ -49,48 +39,29 @@ struct StreamConditionsFullscreenView: View {
             // potentially invalidate widget?
         }
         .toolbar {
-            if mapFocused {
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        withAnimation {
-                            self.cameraPosition = .camera(.init(centerCoordinate: CLLocationCoordinate2D(latitude: location.location.latitude, longitude: location.location.longitude), distance: 5000))
-                            
-                        } completion: {
-                            withAnimation {
-                                self.mapFocused = false
-                            }
-                        }
-                    } label: {
-                        Image(systemName: "info.circle.text.page")
+//            ToolbarItem(placement: .primaryAction) {
+//                Button {
+//                    withAnimation {
+//                        SharedViewModel.shared.selectedTab = .maps(location: CLLocationCoordinate2D(latitude: location.location.latitude, longitude: location.location.longitude))
+//                        
+//                    }
+//                } label: {
+//                    Image(systemName: "map")
+//                }
+//            }
+            
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    if vm.currentProfile?.gauges.contains(where: { $0.id == location.id }) ?? false {
+                        vm.removeFavoriteLocation(location.id)
+                    } else {
+                        vm.addFavoriteLocation(location)
                     }
+                    
+                } label: {
+                    Image(systemName: (vm.currentProfile?.gauges.contains(where: { $0.id == location.id }) ?? false) ? "star.fill" : "star")
+                        .foregroundStyle(.yellow)
                 }
-            } else {
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        withAnimation {
-                            mapFocused = true
-                        }
-                    } label: {
-                        Image(systemName: "map")
-                    }
-                }
-                
-                
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        if vm.currentProfile?.gauges.contains(where: { $0.id == location.id }) ?? false {
-                            vm.removeFavoriteLocation(location.id)
-                        } else {
-                            vm.addFavoriteLocation(location)
-                        }
-                        
-                    } label: {
-                        Image(systemName: (vm.currentProfile?.gauges.contains(where: { $0.id == location.id }) ?? false) ? "star.fill" : "star")
-                            .foregroundStyle(.yellow)
-                    }
-                }
-                
-                
             }
         }
         

@@ -15,14 +15,10 @@ struct StreamConditionsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 0) {
-                ForEach(vm.favoriteLocations.sorted(), id: \.self) { el in
+                ForEach(vm.currentProfile?.gauges ?? []) { el in
                     Group {
-                        if let value = (vm.currentProfile?.gauges ?? []).first(where: { $0.id == el.id }) {
-                            NavigationLink(value: value) {
-                                MediumWidgetView(data: value)
-                            }
-                        } else {
-                            Text("Unable to fetch data")
+                        NavigationLink(value: el) {
+                            MediumWidgetView(data: el)
                         }
                     }
                     .padding()

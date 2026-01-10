@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-public struct Location: Codable, Hashable, Equatable, Identifiable, EncodableWithConfiguration {
+public struct Location: Codable, Hashable, Equatable, Identifiable, EncodableWithConfiguration, Sendable {
     public static func == (lhs: Location, rhs: Location) -> Bool {
         return lhs.hashValue == rhs.hashValue
     }
@@ -173,7 +173,7 @@ public enum USGSDataSeries: Codable, CaseIterable {
     
 }
 
-public struct LocationDataMetric: Codable, Hashable, Equatable {
+public struct LocationDataMetric: Codable, Hashable, Equatable, Sendable {
     public let descriptor: LocationDataMetricDescriptor
     public let value: [LocationDataMetricValue]
     
@@ -219,7 +219,7 @@ public struct LocationDataMetric: Codable, Hashable, Equatable {
     
 }
 
-public struct LocationDataMetricDescriptor: Codable, Equatable, Hashable {
+public struct LocationDataMetricDescriptor: Codable, Equatable, Hashable, Sendable {
     public static func == (lhs: LocationDataMetricDescriptor, rhs: LocationDataMetricDescriptor) -> Bool {
         return lhs.code == rhs.code
     }
@@ -237,13 +237,13 @@ public struct LocationDataMetricDescriptor: Codable, Equatable, Hashable {
     }
 }
 
-public struct LocationDataMetricValue: Codable, Identifiable, Hashable {
+public struct LocationDataMetricValue: Codable, Identifiable, Hashable, Sendable {
     public var id = UUID()
     public let value: String
     public let date: Date
 }
 
-public struct LocationGeog: Codable, Hashable {
+public struct LocationGeog: Codable, Hashable, Sendable {
     public let latitude: Double
     public let longitude: Double
 }
