@@ -10,6 +10,7 @@ import USGSShared
 
 struct WidgetSettingsView: View {
     @Binding var location: Location
+    @State var editingLabelOverride: DisplaySeries? = nil
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -77,30 +78,65 @@ struct WidgetSettingsView: View {
             Divider()
             ForEach(location.metrics, id: \.descriptor.code) { metric in
                 let enabled = Binding(get: {
-                    return location.settings.displaySettings.valuesToShow.contains {
-                        $0.code == metric.descriptor.code
+                    return location.settings.displaySettings.series.contains {
+                        $0.metric.code == metric.descriptor.code
                     }
                 }, set: { new in
                     if new {
                         withAnimation {
                             location = location.withUpdatedSettings { settings in
-                                settings.displaySettings.valuesToShow.append(metric.descriptor)
+                                settings.displaySettings.series.append(.init(metric: metric.descriptor))
                             }
                         }
                     } else {
                         withAnimation {
                             location = location.withUpdatedSettings { settings in
-                                settings.displaySettings.valuesToShow.removeAll {
-                                    $0.code == metric.descriptor.code
+                                settings.displaySettings.series.removeAll {
+                                    $0.metric.code == metric.descriptor.code
                                 }
                             }
                         }
                     }
                 })
                 
+                let editingOverride = Binding<Bool>(get: {
+                    guard let editing = self.editingLabelOverride else { return false }
+                    return editing.metric.code == metric.descriptor.code
+                }, set: { new in
+                    guard let metric = location.settings.displaySettings.series.first(where: { $0.metric.code == metric.descriptor.code }), new else {
+                        self.editingLabelOverride = nil
+                        return
+                    }
+                    
+                    self.editingLabelOverride = metric
+                })
+                
+                let editOverrideText = Binding<String>(get: {
+                    guard let series = location.settings.displaySettings.series.first(where: { $0.metric.code == metric.descriptor.code }) else { return metric.descriptorSpecificLabelShort }
+                    
+                    return series.labelOverride ?? metric.descriptorSpecificLabelShort
+                }, set: { new in
+                    withAnimation {
+                        location = location.withUpdatedSettings { settings in
+                            guard let seriesIdx = settings.displaySettings.series.firstIndex(where: { $0.metric.code == metric.descriptor.code }) else { return }
+                            settings.displaySettings.series[seriesIdx].labelOverride = new
+                        }
+                    }
+                })
+                
                 HStack {
-                    Text(metric.descriptor.parsedLabel ?? "")
-                    Spacer()
+                    Text(metric.descriptor.parsedLabel ?? metric.descriptor.name ?? "Unknown Metric")
+                    if enabled.wrappedValue {
+                        Spacer()
+                        Button("Edit Label") {
+                            editingOverride.wrappedValue.toggle()
+                        }
+                        .popover(isPresented: editingOverride) {
+                            TextField(text: editOverrideText, prompt: Text("Label"), label: { Text("Label") })
+                                .padding()
+                                .presentationCompactAdaptation(.popover)
+                        }
+                    }
                     Toggle(isOn: enabled, label: {})
                 }
                 .padding(.vertical, 4)

@@ -43,7 +43,9 @@ struct StreamConditionsFullscreenView: View {
             }
         }
         .onChange(of: location) {
-            SharedViewModel.shared.saveLocationData(location, for: location.id)
+            if let locIdx = SharedViewModel.shared.currentProfile?.gauges.firstIndex(where: { $0.id == location.id }) {
+                SharedViewModel.shared.currentProfile?.gauges[locIdx] = location
+            }
             // potentially invalidate widget?
         }
         .toolbar {
@@ -73,16 +75,17 @@ struct StreamConditionsFullscreenView: View {
                     }
                 }
                 
+                
                 ToolbarItem(placement: .primaryAction) {
                     Button {
-                        if vm.favoriteLocations.contains(where: { $0 == location.id }) {
+                        if vm.currentProfile?.gauges.contains(where: { $0.id == location.id }) ?? false {
                             vm.removeFavoriteLocation(location.id)
                         } else {
-                            vm.addFavoriteLocation(location.id)
+                            vm.addFavoriteLocation(location)
                         }
                         
                     } label: {
-                        Image(systemName: vm.favoriteLocations.contains(where: { $0 == location.id }) ? "star.fill" : "star")
+                        Image(systemName: (vm.currentProfile?.gauges.contains(where: { $0.id == location.id }) ?? false) ? "star.fill" : "star")
                             .foregroundStyle(.yellow)
                     }
                 }

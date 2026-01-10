@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-public struct Location: Codable, Hashable, Equatable, Identifiable {
+public struct Location: Codable, Hashable, Equatable, Identifiable, EncodableWithConfiguration {
     public static func == (lhs: Location, rhs: Location) -> Bool {
         return lhs.hashValue == rhs.hashValue
     }
@@ -33,6 +33,26 @@ public struct Location: Codable, Hashable, Equatable, Identifiable {
     }
     
     public var settings: LocationSettings
+    
+    public func encode(to encoder: any Encoder, configuration: ProfileEncodingConfiguration) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(name, forKey: .name)
+        try container.encode(id, forKey: .id)
+        try container.encode(settings, forKey: .settings)
+        try container.encode(location, forKey: .location)
+        if !configuration.firebase {
+            try container.encode(metrics, forKey: .metrics)
+        }
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.location = try container.decode(LocationGeog.self, forKey: .location)
+        self.metrics = (try? container.decode([LocationDataMetric].self, forKey: .metrics)) ?? []
+        self.settings = (try container.decodeIfPresent(LocationSettings.self, forKey: .settings)) ?? .init(isEmpty: true)
+    }
     
     public static func getArray(from data: USGSData) -> [Location] {
         var res: [Location] = []
@@ -70,8 +90,8 @@ public struct Location: Codable, Hashable, Equatable, Identifiable {
         self.location = location
         self.metrics = metrics
         
-        if let prevLoc = SharedViewModel.shared.locationData[id] {
-            self.settings = prevLoc.settings
+        if let profile = SharedViewModel.shared.currentProfile, let gauge = profile.gauges.first(where: { $0.id == id }) {
+            self.settings = gauge.settings
         } else {
             self.settings = LocationSettings(defaultSettingsFrom: metrics)
         }

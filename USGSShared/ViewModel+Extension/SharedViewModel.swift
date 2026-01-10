@@ -9,7 +9,8 @@ import Foundation
 import Combine
 import SwiftUI
 import WidgetKit
-import FirebaseDatabase
+internal import FirebaseDatabase
+internal import FirebaseAuth
 
 public class SharedViewModel: ObservableObject {
     public static var shared = SharedViewModel()
@@ -18,57 +19,99 @@ public class SharedViewModel: ObservableObject {
     static let widgetPreferenceKey = "USGSApp-WidgetPreference"
     static let cacheKey = "USGSApp-Data"
     static let coordinatesStorageKey = "USGSApp-Coordinates"
-    
-    @Published public private(set) var favoriteLocations: [String] = []
-    @Published public private(set) var locationData: [String : Location] = [:]
+    static let authenticationCredentialKey = "USGSApp-AuthenticationCredential"
+    static let profileKey = "USGSApp-Profile"
+
     @Published public var selectedTab: SharedViewModel.Tab = .conditions
     @Published public var nav: NavigationPath = .init()
     @Published public var allLocations: [BasicLocation] = []
     
-    @Published public var userSavedCoordinates: [UserSavedCoordinate] = []
+    @Published public var currentProfile: Profile? = nil
+    @Published public var awaitingVerificationCodeContinuation: VerificationCodeStatus = .inactive
     
     static let data = UserDefaults(suiteName: "group.com.jmelitski.USGS")
-    
+    var profileUpdater: (any Cancellable)? = nil
+    var profileRef: DatabaseReference? = nil
+    var profileObserver: UInt? = nil
     
     init() {
-        resetState()
+        self.resetState {
+            self.profileUpdater = self.$currentProfile.sink { newProfile in
+                // update firebase
+                
+                
+                var new = newProfile
+                new?.lastUpdated = (newProfile?.isSufficientlyDifferentFrom(otherProfile: self.currentProfile) ?? true) ? Date.now : self.currentProfile?.lastUpdated
+                let data = (try? JSONEncoder().encode(new)) ?? Data()
+                Self.data?.set(data, forKey: Self.profileKey)
+                if let new, new.isSufficientlyDifferentFrom(otherProfile: self.currentProfile) {
+                    DispatchQueue.global(qos: .utility).async {
+                        Task {
+                            try? await StreamsideFirebase.saveProfile(new)
+                        }
+                    }
+                }
+                WidgetCenter.shared.reloadTimelines(ofKind: "USGS_Widget")
+            }
+            
+            self.profileRef = Database.database().reference()
+            
+        }
+    }
+    
+    @MainActor func handleProfile() async {
+        guard let id = Bundle.main.bundleIdentifier, !id.hasSuffix("Widget") else { return }
+        if let user = Auth.auth().currentUser {
+            self.profileRef = Database.database().reference().child("users").child(user.uid)
+            // establish a download reference
+            // establish an upload reference
+            self.profileUpdater = self.$currentProfile.sink { newProfile in
+                // send changes to server
+            }
+            self.profileObserver = self.profileRef?.observe(DataEventType.value) { snapshot in
+                // new changes from server
+                withAnimation {
+                    self.currentProfile = try? Profile.init(from: snapshot)
+                }
+                
+            }
+        }
+    }
+    
+    public func requestNewSignIn(with phoneNumber: String) async throws {
+        let user = try await self.newSignIn(phoneNumber: phoneNumber)
+        let profile = try await StreamsideFirebase.getProfile()
+        DispatchQueue.main.async {
+            self.currentProfile = profile
+        }
+    }
+    
+    @MainActor public func logOut() throws {
+        // make sure we cancel any update tasks, otherwise we'll write nil to the server and delete someone's profile
+        Self.data?.set(nil, forKey: Self.profileKey)
+        try Auth.auth().signOut()
+        withAnimation {
+            self.currentProfile = nil
+        }
     }
     
     public func resetState(completion: (() -> ())? = nil) {
-        let locs = self.getLocs() ?? []
-        let dict = self.getDict() ?? [:]
-        let coords = self.getCoordinates() ?? []
-        
-        self.favoriteLocations = locs
-        self.locationData = dict
-        self.userSavedCoordinates = coords
-        
-        if !self.favoriteLocations.isEmpty {
-            selectedTab = .conditions
-        }
+        self.widgetPreferredLocation = Self.data?.string(forKey: Self.widgetPreferenceKey)
+        self.currentProfile = try? JSONDecoder().decode(Profile.self, from: Self.data?.data(forKey: Self.profileKey) ?? Data())
         
         Task { @MainActor in
+            await self.handleProfile()
             await self.refreshData()
             completion?()
         }
     }
     
-    public func addFavoriteLocation(_ id: String) {
-        self.favoriteLocations.append(id)
-        self.saveLocs()
-        Task { @MainActor in
-            if let data = try? await self.fetchLocationData(id) {
-                self.locationData.updateValue(data, forKey: id)
-                self.saveDict()
-            }
-        }
+    public func addFavoriteLocation(_ location: Location) {
+        self.currentProfile?.gauges.append(location)
     }
     
     public func removeFavoriteLocation(_ id: String) {
-        self.favoriteLocations.removeAll(where: { $0 == id })
-        self.locationData.removeValue(forKey: id)
-        self.saveDict()
-        self.saveLocs()
+        self.currentProfile?.gauges.removeAll(where: { $0.id == id })
     }
     
     public func loadAllLocationsFromFirebase() {
@@ -94,33 +137,25 @@ public class SharedViewModel: ObservableObject {
         }
     }
     
-    public func saveLocationData(_ data: Location, for id: String) {
-        self.locationData.updateValue(data, forKey: id)
-        self.saveDict()
-    }
-    
     public enum Tab {
         case conditions, maps, fish, trips
     }
     
     @MainActor public func refreshData() async {
-        let keys = self.favoriteLocations
-        self.locationData = await withTaskGroup(of: (String, Location?).self, returning: [String : Location].self) { group in
-            keys.forEach { key in
+        let locs = (self.currentProfile?.gauges ?? [])
+        self.currentProfile?.gauges = await withTaskGroup(of: Location.self, returning: [Location].self) { group in
+            locs.forEach { loc in
                 group.addTask {
-                    return (key, try? await self.fetchLocationData(key))
+                    return ((try? await self.fetchLocationData(String(loc.id))) ?? loc)
                 }
             }
             
-            var finalDict: [String: Location] = [:]
+            var results: [Location] = []
             for await result in group {
-                if let loc = result.1 {
-                    finalDict.updateValue(loc, forKey: result.0)
-                }
+                results.append(result)
             }
-            return finalDict
+            return results
         }
-        self.saveDict()
     }
     
     @discardableResult
@@ -132,6 +167,55 @@ public class SharedViewModel: ObservableObject {
         
     }
     
+    func newSignIn(phoneNumber: String) async throws -> User {
+        Auth.auth().settings?.isAppVerificationDisabledForTesting = true
+        let token: String = try await withCheckedThrowingContinuation { continuation in
+            PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber) { vID, err in
+                if let err {
+                    continuation.resume(throwing: err)
+                    return
+                }
+                
+                guard let vID else {
+                    continuation.resume(throwing: AuthError.unableToFetchVID)
+                    return
+                }
+                continuation.resume(returning: vID)
+            }
+        }
+        
+        var attempt = 1
+        while true {
+            let code: String = await withCheckedContinuation { continuation in
+                DispatchQueue.main.async {
+                    self.awaitingVerificationCodeContinuation = .awaiting(continuation: continuation, attempt: attempt)
+                }
+            }
+            let credential = PhoneAuthProvider.provider().credential(withVerificationID: token, verificationCode: code)
+            do {
+                let user = (try await Auth.auth().signIn(with: credential)).user
+                return user
+            } catch AuthErrorCode.missingVerificationID {
+                attempt += 1
+            } catch AuthErrorCode.missingVerificationCode {
+                attempt += 1
+            } catch AuthErrorCode.invalidVerificationCode {
+                attempt += 1
+            } catch {
+                Task { @MainActor in
+                    withAnimation {
+                        self.awaitingVerificationCodeContinuation = .error(error: error)
+                    }
+                }
+            }
+            
+        }
+    }
+    
+    enum AuthError: Error {
+        case unableToFetchVID
+    }
+    
     enum USGSDataError: String, LocalizedError {
         case notInLocations = "ILLEGAL STATE: You cannot request data for a location not in favorites (for now)"
         case locationNotFound = "The specified location was not found in the returned data"
@@ -141,34 +225,28 @@ public class SharedViewModel: ObservableObject {
         }
     }
     
-    func saveLocs() {
-        let enc = JSONEncoder()
-        let data = try? enc.encode(self.favoriteLocations)
-        Self.data?.set(data, forKey: Self.favoritesKey)
-    }
-    
-    func getLocs() -> [String]? {
-        guard let data = Self.data?.value(forKey: Self.favoritesKey) as? Data else {
-            return nil
+}
+
+public enum VerificationCodeStatus: Equatable {
+    public static func == (lhs: VerificationCodeStatus, rhs: VerificationCodeStatus) -> Bool {
+        switch lhs {
+        case .awaiting(_, let att):
+            if case .awaiting(_, let attR) = rhs {
+                return att == attR
+            }
+        case .inactive:
+            if case .inactive = rhs {
+                return true
+            }
+        case .error(_):
+        if case .error(_) = rhs {
+            return true
         }
-        let dec = JSONDecoder()
-        return try? dec.decode([String].self, from: data)
-    }
-    
-    func saveDict() {
-        let enc = JSONEncoder()
-        let data = try? enc.encode(self.locationData)
-        Self.data?.set(data, forKey: Self.cacheKey)
-        
-        WidgetCenter.shared.reloadTimelines(ofKind: "USGS_Widget")
-    }
-    
-    func getDict() -> [String: Location]? {
-        guard let data = Self.data?.value(forKey: Self.cacheKey) as? Data else {
-            return nil
         }
-        let dec = JSONDecoder()
-        return try? dec.decode([String: Location].self, from: data)
+        return false
     }
     
+    case inactive
+    case awaiting(continuation: CheckedContinuation<String,Never>, attempt: Int)
+    case error(error: any Error)
 }

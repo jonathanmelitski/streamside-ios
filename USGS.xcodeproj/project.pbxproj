@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		730A4F492E978D8D00D70207 /* PhoneNumberKit in Frameworks */ = {isa = PBXBuildFile; productRef = 730A4F482E978D8D00D70207 /* PhoneNumberKit */; };
+		7323B8F42E88E7D3003A3A84 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 7323B8F32E88E7D3003A3A84 /* FirebaseAuth */; };
+		7323B8F82E88F243003A3A84 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 7323B8F72E88F243003A3A84 /* FirebaseAuth */; };
 		734A9B4C2E81CC25001148A2 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 734A9B4B2E81CC25001148A2 /* FirebaseAppCheck */; };
 		734A9B502E81CD80001148A2 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 734A9B4F2E81CD80001148A2 /* FirebaseAppCheck */; };
 		734A9B522E81CD80001148A2 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 734A9B512E81CD80001148A2 /* FirebaseDatabase */; };
@@ -15,6 +18,7 @@
 		737FC4C02DE6B66100F56288 /* USGSShared.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 737FC4B72DE6B66100F56288 /* USGSShared.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		737FC4DA2DE6BFFB00F56288 /* USGSShared.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 737FC4B72DE6B66100F56288 /* USGSShared.framework */; };
 		73A0E72B2E22BB2C0019F8FD /* DotLottie in Frameworks */ = {isa = PBXBuildFile; productRef = 73A0E72A2E22BB2C0019F8FD /* DotLottie */; };
+		73A42D162E977A90001397C4 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 73A42D152E977A90001397C4 /* FirebaseFunctions */; };
 		73B4F1592DE5671900B305A7 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73B4F1582DE5671800B305A7 /* WidgetKit.framework */; };
 		73B4F15B2DE5671900B305A7 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73B4F15A2DE5671900B305A7 /* SwiftUI.framework */; };
 		73B4F16A2DE5671C00B305A7 /* USGS WidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 73B4F1562DE5671800B305A7 /* USGS WidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -165,7 +169,9 @@
 			files = (
 				734A9B522E81CD80001148A2 /* FirebaseDatabase in Frameworks */,
 				734A9B542E81CD9A001148A2 /* FirebaseCore in Frameworks */,
+				73A42D162E977A90001397C4 /* FirebaseFunctions in Frameworks */,
 				734A9B502E81CD80001148A2 /* FirebaseAppCheck in Frameworks */,
+				7323B8F42E88E7D3003A3A84 /* FirebaseAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -173,7 +179,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				730A4F492E978D8D00D70207 /* PhoneNumberKit in Frameworks */,
 				737FC4BF2DE6B66100F56288 /* USGSShared.framework in Frameworks */,
+				7323B8F82E88F243003A3A84 /* FirebaseAuth in Frameworks */,
 				73FBE4D32E79B2D60085166B /* FirebaseCore in Frameworks */,
 				73A0E72B2E22BB2C0019F8FD /* DotLottie in Frameworks */,
 				734A9B4C2E81CC25001148A2 /* FirebaseAppCheck in Frameworks */,
@@ -258,6 +266,8 @@
 				734A9B4F2E81CD80001148A2 /* FirebaseAppCheck */,
 				734A9B512E81CD80001148A2 /* FirebaseDatabase */,
 				734A9B532E81CD9A001148A2 /* FirebaseCore */,
+				7323B8F32E88E7D3003A3A84 /* FirebaseAuth */,
+				73A42D152E977A90001397C4 /* FirebaseFunctions */,
 			);
 			productName = USGSShared;
 			productReference = 737FC4B72DE6B66100F56288 /* USGSShared.framework */;
@@ -289,6 +299,8 @@
 				73FBE4D22E79B2D60085166B /* FirebaseCore */,
 				73FBE4D42E79B2D60085166B /* FirebaseFunctions */,
 				734A9B4B2E81CC25001148A2 /* FirebaseAppCheck */,
+				7323B8F72E88F243003A3A84 /* FirebaseAuth */,
+				730A4F482E978D8D00D70207 /* PhoneNumberKit */,
 			);
 			productName = USGS;
 			productReference = 73B4F1412DE566F600B305A7 /* USGS.app */;
@@ -350,6 +362,7 @@
 			packageReferences = (
 				73A0E7292E22BB2C0019F8FD /* XCRemoteSwiftPackageReference "dotlottie-ios" */,
 				73FBE4D12E79B2D60085166B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				730A4F472E978D8D00D70207 /* XCRemoteSwiftPackageReference "PhoneNumberKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 73B4F1422DE566F600B305A7 /* Products */;
@@ -454,6 +467,7 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jmelitski.USGS.USGSShared;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -491,6 +505,7 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jmelitski.USGS.USGSShared;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -653,7 +668,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.jmelitski.USGS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = Development;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "927 Dev";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -807,6 +822,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		730A4F472E978D8D00D70207 /* XCRemoteSwiftPackageReference "PhoneNumberKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/marmelroy/PhoneNumberKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.1.4;
+			};
+		};
 		73A0E7292E22BB2C0019F8FD /* XCRemoteSwiftPackageReference "dotlottie-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/LottieFiles/dotlottie-ios";
@@ -826,6 +849,21 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		730A4F482E978D8D00D70207 /* PhoneNumberKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 730A4F472E978D8D00D70207 /* XCRemoteSwiftPackageReference "PhoneNumberKit" */;
+			productName = PhoneNumberKit;
+		};
+		7323B8F32E88E7D3003A3A84 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73FBE4D12E79B2D60085166B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		7323B8F72E88F243003A3A84 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73FBE4D12E79B2D60085166B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
 		734A9B4B2E81CC25001148A2 /* FirebaseAppCheck */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 73FBE4D12E79B2D60085166B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
@@ -850,6 +888,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 73A0E7292E22BB2C0019F8FD /* XCRemoteSwiftPackageReference "dotlottie-ios" */;
 			productName = DotLottie;
+		};
+		73A42D152E977A90001397C4 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 73FBE4D12E79B2D60085166B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFunctions;
 		};
 		73FBE4D22E79B2D60085166B /* FirebaseCore */ = {
 			isa = XCSwiftPackageProductDependency;
