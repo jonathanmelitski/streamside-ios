@@ -24,7 +24,6 @@ public class SharedViewModel: ObservableObject {
     @Published public var selectedTab: SharedViewModel.Tab = .conditions
     @Published public var nav: NavigationPath = .init()
     @Published public var allLocations: [BasicLocation] = []
-    @Published public var widgetPreferredLocation: String?
     
     @Published public var userSavedCoordinates: [UserSavedCoordinate] = []
     
@@ -43,8 +42,6 @@ public class SharedViewModel: ObservableObject {
         self.favoriteLocations = locs
         self.locationData = dict
         self.userSavedCoordinates = coords
-        
-        self.widgetPreferredLocation = Self.data?.string(forKey: Self.widgetPreferenceKey)
         
         if !self.favoriteLocations.isEmpty {
             selectedTab = .conditions
@@ -72,12 +69,6 @@ public class SharedViewModel: ObservableObject {
         self.locationData.removeValue(forKey: id)
         self.saveDict()
         self.saveLocs()
-    }
-    
-    public func setPreferredWidgetLocation(_ id: String?) {
-        self.widgetPreferredLocation = id
-        Self.data?.set(id, forKey: Self.widgetPreferenceKey)
-        WidgetCenter.shared.reloadTimelines(ofKind: "USGS_Widget")
     }
     
     public func loadAllLocationsFromFirebase() {

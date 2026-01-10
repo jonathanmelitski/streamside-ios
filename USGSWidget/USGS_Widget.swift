@@ -9,19 +9,44 @@ import WidgetKit
 import SwiftUI
 import USGSShared
 
-struct Provider: TimelineProvider {
-    func getSnapshot(in context: Context, completion: @escaping @Sendable (SimpleEntry) -> Void) {
-        completion(SimpleEntry(date: Date(), data: Location.sampleData))
+//struct Provider: AppIntentTimelineProvider {
+//    func placeholder(in context: Context) -> SimpleEntry {
+//        SimpleEntry(date: Date(), data: nil)
+//    }
+//
+//    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
+//        SimpleEntry(date: Date(), data: configuration.location)
+//    }
+//
+//    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
+//        await SharedViewModel.shared.refreshData()
+//        let fetchedData = SharedViewModel.shared.locationData[configuration.location?.id ?? ""]
+//        let currentDate = Date()
+//        let entry = SimpleEntry(date: currentDate, data: fetchedData)
+//        let nextRefresh = Calendar.current.date(byAdding: .minute, value: 15, to: currentDate)!
+//
+//        return Timeline(entries: [entry], policy: .after(nextRefresh))
+//    }
+//}
+
+struct Provider: AppIntentTimelineProvider {
+    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
+        return SimpleEntry(date: Date(), data: Location.sampleData)
     }
     
-    func getTimeline(in context: Context, completion: @escaping @Sendable (Timeline<SimpleEntry>) -> Void) {
-        SharedViewModel.shared.resetState() {
-            let fetchedData = SharedViewModel.shared.locationData[SharedViewModel.shared.widgetPreferredLocation ?? ""]
-            let currentDate = Date()
-            let entry = SimpleEntry(date: currentDate, data: fetchedData)
-            let nextRefresh = Calendar.current.date(byAdding: .minute, value: 15, to: currentDate)!
-            completion(Timeline(entries: [entry], policy: .after(nextRefresh)))
+    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
+        await withCheckedContinuation { cont in
+            SharedViewModel.shared.resetState {
+                cont.resume()
+            }
         }
+        
+        let fetchedData = SharedViewModel.shared.locationData[configuration.location?.id ?? ""]
+        let currentDate = Date()
+        let entry = SimpleEntry(date: currentDate, data: fetchedData)
+        let nextRefresh = Calendar.current.date(byAdding: .minute, value: 15, to: currentDate)!
+
+        return Timeline(entries: [entry], policy: .after(nextRefresh))
     }
     
     func placeholder(in context: Context) -> SimpleEntry {
@@ -52,11 +77,11 @@ struct USGS_WidgetEntryView : View {
                 
         } else {
             VStack(alignment: .center) {
-                Text("No Selected Location")
+                Text("No Gage")
                     .bold()
                     .font(.title2)
                 Divider()
-                Text("Select the primary widget location by pressing the crown icon on a location card.")
+                Text("Select the widget location in this widget's settings.")
                     .font(.caption)
             }
             .foregroundStyle(.white)
@@ -69,7 +94,7 @@ struct USGS_Widget: Widget {
     let kind: String = "USGS_Widget"
 
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: Provider()) { entry in
+        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
             USGS_WidgetEntryView(entry: entry)
                 .containerBackground(.linearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom), for: .widget)
                 

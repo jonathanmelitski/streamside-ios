@@ -9,9 +9,6 @@ import SwiftUI
 import CoreLocation
 
 extension SharedViewModel {
-    // Should add Firebase DB to this, but will need to handle login in that case? Maybe I don't if I only deal with DB access on a global scope?
-    
-    
     func saveCoordinates() {
         let enc = JSONEncoder()
         let data = try? enc.encode(self.userSavedCoordinates)

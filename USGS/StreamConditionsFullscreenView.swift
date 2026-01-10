@@ -75,20 +75,6 @@ struct StreamConditionsFullscreenView: View {
                 
                 ToolbarItem(placement: .primaryAction) {
                     Button {
-                        if vm.widgetPreferredLocation == location.id {
-                            vm.setPreferredWidgetLocation(nil)
-                        } else {
-                            vm.setPreferredWidgetLocation(location.id)
-                        }
-                        
-                    } label: {
-                        Image(systemName: vm.widgetPreferredLocation == location.id ? "crown.fill" : "crown")
-                            .foregroundStyle(.yellow)
-                    }
-                }
-                
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
                         if vm.favoriteLocations.contains(where: { $0 == location.id }) {
                             vm.removeFavoriteLocation(location.id)
                         } else {

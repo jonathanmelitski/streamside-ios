@@ -111,7 +111,7 @@ struct SearchView: View {
             LocationSearchSheetView(selectedLocation: $selectedLocation)
                 .padding()
         }
-        .navigationTitle("Add New Location")
+        .navigationTitle("Add New Gage")
         .navigationBarTitleDisplayMode(.inline)
     }
     
