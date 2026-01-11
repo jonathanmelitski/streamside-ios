@@ -47,6 +47,6 @@ struct StreamConditionsView: View {
                 }
             }
         }
-        .navigationTitle("My Locations")
+        .navigationTitle("My Gages")
     }
 }
