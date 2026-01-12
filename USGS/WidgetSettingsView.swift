@@ -15,10 +15,88 @@ struct WidgetSettingsView: View {
     var body: some View {
         VStack(alignment: .leading) {
             
+            let titleOverrideText = Binding<String>(get: {
+                return location.settings.widgetSettings.titleOverride ?? ""
+            }, set: { new in
+                withAnimation {
+                    location = location.withUpdatedSettings { settings in
+                        settings.widgetSettings.titleOverride = new != "" ? new : nil
+                    }
+                }
+            })
+            
+            Text("Widget Settings")
+                .font(.title2)
+                .bold()
+            Divider()
+            HStack {
+                Text("Title Override")
+                Spacer()
+                TextField("Title Override", text: titleOverrideText, prompt: Text(location.name))
+                    .textFieldStyle(.roundedBorder)
+                    .multilineTextAlignment(.trailing)
+                    .truncationMode(.middle)
+                    .frame(maxWidth: 250)
+            }
+            
+            let topColor = Binding<Color>(get: {
+                location.settings.widgetSettings.topColor.toSwiftUIColor
+            }, set: { new in
+                withAnimation {
+                    location = location.withUpdatedSettings { settings in
+                        settings.widgetSettings.topColor = CodableColor(from: new)
+                    }
+                }
+            })
+            let bottomColor = Binding<Color>(get: {
+                location.settings.widgetSettings.bottomColor.toSwiftUIColor
+            }, set: { new in
+                withAnimation {
+                    location = location.withUpdatedSettings { settings in
+                        settings.widgetSettings.bottomColor = CodableColor(from: new)
+                    }
+                }
+            })
+            
+            HStack {
+                Text("Top Gradient Color")
+                Spacer()
+                ColorPicker("", selection: topColor)
+            }
+            
+            HStack {
+                Text("Bottom Gradient Color")
+                Spacer()
+                ColorPicker("", selection: bottomColor)
+            }
+            Divider()
+            
             Text("Graph Settings")
                 .font(.title2)
                 .bold()
             Divider()
+            
+            let graphDays = Binding<Int>(get: {
+                location.settings.graphSettings.domainDays
+            }, set: { new in
+                withAnimation {
+                    location = location.withUpdatedSettings { settings in
+                        settings.graphSettings.domainDays = new
+                    }
+                }
+            })
+            HStack {
+                Text("Graph Domain (days)")
+                Spacer()
+                Stepper("", value: graphDays, in: 1...7)
+                Text(String(location.settings.graphSettings.domainDays))
+                    .contentTransition(.numericText())
+                    .padding(4)
+                    .padding(.horizontal)
+                    .bold()
+                    .background(RoundedRectangle(cornerRadius: 4).stroke(lineWidth: 0.25))
+        
+            }
             ForEach(location.metrics, id: \.descriptor.code) { metric in
                 let enabled = Binding(get: {
                     location.settings.graphSettings.series.contains { series in
@@ -71,6 +149,8 @@ struct WidgetSettingsView: View {
                 }
                 .padding(.vertical, 4)
             }
+            
+            Divider()
             
             Text("Value Settings")
                 .font(.title2)

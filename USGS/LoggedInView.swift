@@ -62,8 +62,13 @@ struct LoggedInView: View {
             }
             
             vm.selectedTab = .conditions
+            
             if let loc = vm.currentProfile?.gauges.first(where: { $0.id == locationId }) {
-                vm.nav.append(loc)
+                Task { @MainActor in
+                    vm.nav.removeLast(vm.nav.count)
+                    try? await Task.sleep(nanoseconds: 250_000_000) // .25 seconds
+                    vm.nav.append(loc)
+                }
             }
         }
     }

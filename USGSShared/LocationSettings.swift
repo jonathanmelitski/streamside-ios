@@ -24,23 +24,34 @@ public struct LocationSettings: Codable, Hashable {
         }
         
         self.graphSettings = .init(series: graphSeries)
+        self.widgetSettings = .init()
     }
     
     // Required because firebase/python condenses data when storing
     init(isEmpty empty: Bool) {
         self.graphSettings = .init(series: [])
         self.displaySettings = .init(series: [])
+        self.widgetSettings = .init()
     }
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.displaySettings = (try container.decodeIfPresent(DisplaySettings.self, forKey: .displaySettings)) ?? .init(series: [])
         self.graphSettings = (try container.decodeIfPresent(GraphSettings.self, forKey: .graphSettings)) ?? .init(series: [])
+        self.widgetSettings = (try container.decodeIfPresent(WidgetSettings.self, forKey: .widgetSettings)) ?? .init()
     }
     
     public var displaySettings: DisplaySettings
     
     public var graphSettings: GraphSettings
+    
+    public var widgetSettings: WidgetSettings
+}
+
+public struct WidgetSettings: Codable, Hashable {
+    public var titleOverride: String? = nil
+    public var topColor: CodableColor = .init(from: Color("TopGradient"))
+    public var bottomColor: CodableColor = .init(from: Color("BottomGradient"))
 }
 
 public struct DisplaySettings: Codable, Hashable {
@@ -59,7 +70,19 @@ public struct DisplaySeries: Codable, Hashable {
 }
 
 public struct GraphSettings: Codable, Hashable {
-    public var series: [GraphSeries]
+    public var series: [GraphSeries] = []
+    public var domainDays: Int = 7
+    
+    init(series: [GraphSeries] = [], domainDays: Int = 7) {
+        self.series = series
+        self.domainDays = domainDays
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.series = (try? container.decode([GraphSeries].self, forKey: .series)) ?? []
+        self.domainDays = (try? container.decodeIfPresent(Int.self, forKey: .domainDays)) ?? 7
+    }
 }
 
 public struct GraphSeries: Codable, Identifiable, Hashable {

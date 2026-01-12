@@ -109,7 +109,7 @@ struct StreamConditionsDetailViewStack: View {
                             .padding()
                             .background {
                                 RoundedRectangle(cornerRadius: 24)
-                                    .fill(LinearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom))
+                                    .fill(LinearGradient(colors: [location.settings.widgetSettings.topColor.toSwiftUIColor, location.settings.widgetSettings.bottomColor.toSwiftUIColor], startPoint: .top, endPoint: .bottom))
                             }
                             .frame(height: 150)
                             .shadow(radius: 8)
@@ -121,7 +121,7 @@ struct StreamConditionsDetailViewStack: View {
                             .padding()
                             .background {
                                 RoundedRectangle(cornerRadius: 24)
-                                    .fill(LinearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom))
+                                    .fill(LinearGradient(colors: [location.settings.widgetSettings.topColor.toSwiftUIColor, location.settings.widgetSettings.bottomColor.toSwiftUIColor], startPoint: .top, endPoint: .bottom))
                             }
                             .frame(width: 150, height: 150)
                             .shadow(radius: 8)
@@ -132,9 +132,9 @@ struct StreamConditionsDetailViewStack: View {
                 .indexViewStyle(.page(backgroundDisplayMode: .always))
                 .frame(height: 175)
                 
-                WidgetSettingsView(location: $location)
-                
-                Spacer()
+                ScrollView {
+                    WidgetSettingsView(location: $location)
+                }
             }
             .padding()
             .overlay {

@@ -99,7 +99,7 @@ struct USGS_Widget: Widget {
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
             USGS_WidgetEntryView(entry: entry)
-                .containerBackground(.linearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom), for: .widget)
+                .containerBackground(.linearGradient(colors: [entry.data?.settings.widgetSettings.topColor.toSwiftUIColor ?? Color("TopGradient"), entry.data?.settings.widgetSettings.bottomColor.toSwiftUIColor ?? Color("BottomGradient")], startPoint: .top, endPoint: .bottom), for: .widget)
                 
         }
         .supportedFamilies([.systemMedium, .systemSmall])
