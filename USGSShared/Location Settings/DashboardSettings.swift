@@ -30,7 +30,7 @@ public struct DashboardDisplaySection: Codable, Hashable {
         self.icon = "number"
         //self.blocks = [] //TODO: add sensible default for blocks (PDOC)
         
-        self.blocks = [.init(subblocks: [GraphBlock()]), .init(subblocks: [ValueBlock(), ValueBlock()])]
+        self.blocks = [.init(subblocks: [DashboardGraphBlock()]), .init(subblocks: [DashboardValueBlock(), DashboardValueBlock()])]
     }
 
 }
@@ -85,12 +85,14 @@ private struct GenericComponentBlock: DashboardComponentBlock, Codable {
     
     var configuration: any DashboardComponentBlockConfiguration
     var index: Int
+    let id: UUID
     
     init(from block: any DashboardComponentBlock) {
         self.type = block.type
         self.horizontallyStackable = block.horizontallyStackable
         self.configuration = block.configuration
         self.index = block.index
+        self.id = block.id
     }
     
     init(from decoder: any Decoder) throws {
@@ -98,11 +100,12 @@ private struct GenericComponentBlock: DashboardComponentBlock, Codable {
         self.type = try container.decode(DashboardComponentBlockType.self, forKey: .type)
         self.horizontallyStackable = try container.decode(Bool.self, forKey: .horizontallyStackable)
         self.index = try container.decode(Int.self, forKey: .index)
+        self.id = try container.decode(UUID.self, forKey: .id)
         switch type {
         case .graph:
-            self.configuration = try container.decode(GraphConfig.self, forKey: .configuration)
+            self.configuration = try container.decode(DashboardGraphConfiguration.self, forKey: .configuration)
         case .value:
-            self.configuration = try container.decode(ValueConfig.self, forKey: .configuration)
+            self.configuration = try container.decode(DashboardValueConfiguration.self, forKey: .configuration)
         }
     }
     
@@ -111,23 +114,25 @@ private struct GenericComponentBlock: DashboardComponentBlock, Codable {
         try container.encode(type, forKey: .type)
         try container.encode(horizontallyStackable, forKey: .horizontallyStackable)
         try container.encode(index, forKey: .index)
+        try container.encode(id, forKey: .id)
 
         switch type {
         case .graph:
-            try container.encode(configuration as! GraphConfig, forKey: .configuration)
+            try container.encode(configuration as! DashboardGraphConfiguration, forKey: .configuration)
         case .value:
-            try container.encode(configuration as! ValueConfig, forKey: .configuration)
+            try container.encode(configuration as! DashboardValueConfiguration, forKey: .configuration)
         }
         
     }
     
     enum CodingKeys: String, CodingKey {
-        case type, horizontallyStackable, configuration, index
+        case type, horizontallyStackable, configuration, index, id
     }
     
 }
 
 public protocol DashboardComponentBlock: Hashable {
+    var id: UUID { get }
     var type: DashboardComponentBlockType { get }
     var index: Int { get set }
     var horizontallyStackable: Bool { get }
@@ -143,56 +148,63 @@ public enum DashboardComponentBlockType: Int, Codable {
     case graph, value
 }
 
-struct GraphConfig: DashboardComponentBlockConfiguration {
-    var type: DashboardComponentBlockType = .graph
-    let seriesName: String
+// MARK: Configuration Structs for Component Types
+
+public struct DashboardGraphConfiguration: DashboardComponentBlockConfiguration {
+    public var type: DashboardComponentBlockType = .graph
+    public let seriesName: String
     
-    init() {
+    public init() {
         self.seriesName = "Test"
     }
 }
 
-struct ValueConfig: DashboardComponentBlockConfiguration {
-    var type: DashboardComponentBlockType = .value
-    let value: Int
+public struct DashboardValueConfiguration: DashboardComponentBlockConfiguration {
+    public var type: DashboardComponentBlockType = .value
+    public let value: Int
     
-    init() {
+    public init() {
         self.value = 4
     }
 }
 
-struct GraphBlock: DashboardComponentBlock {
-    static func == (lhs: GraphBlock, rhs: GraphBlock) -> Bool {
-        lhs.configuration as! GraphConfig == rhs.configuration as! GraphConfig && lhs.index == rhs.index
+// MARK: Component Blocks for Component Types
+
+public struct DashboardGraphBlock: DashboardComponentBlock {
+    public static func == (lhs: DashboardGraphBlock, rhs: DashboardGraphBlock) -> Bool {
+        lhs.configuration as! DashboardGraphConfiguration == rhs.configuration as! DashboardGraphConfiguration && lhs.index == rhs.index
     }
     
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(configuration)
         hasher.combine(type)
         hasher.combine(horizontallyStackable)
         hasher.combine(index)
     }
     
-    var configuration: any DashboardComponentBlockConfiguration = GraphConfig()
-    var type: DashboardComponentBlockType = .graph
-    var horizontallyStackable: Bool = false
-    var index: Int = 0
+    public var id = UUID()
+    public var configuration: any DashboardComponentBlockConfiguration = DashboardGraphConfiguration()
+    public var type: DashboardComponentBlockType = .graph
+    public var horizontallyStackable: Bool = false
+    public var index: Int = 0
 }
 
-struct ValueBlock: DashboardComponentBlock {
-    static func == (lhs: ValueBlock, rhs: ValueBlock) -> Bool {
-        lhs.configuration as! ValueConfig == rhs.configuration as! ValueConfig && lhs.index == rhs.index
+public struct DashboardValueBlock: DashboardComponentBlock {
+    public static func == (lhs: DashboardValueBlock, rhs: DashboardValueBlock) -> Bool {
+        lhs.id == rhs.id && lhs.configuration as! DashboardValueConfiguration == rhs.configuration as! DashboardValueConfiguration && lhs.index == rhs.index
     }
     
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(configuration)
         hasher.combine(type)
         hasher.combine(horizontallyStackable)
         hasher.combine(index)
+        hasher.combine(id)
     }
     
-    var configuration: any DashboardComponentBlockConfiguration = ValueConfig()
-    var type: DashboardComponentBlockType = .value
-    var horizontallyStackable: Bool = true
-    var index = 0
+    public var id = UUID()
+    public var configuration: any DashboardComponentBlockConfiguration = DashboardValueConfiguration()
+    public var type: DashboardComponentBlockType = .value
+    public var horizontallyStackable: Bool = true
+    public var index = 0
 }

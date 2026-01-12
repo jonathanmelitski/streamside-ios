@@ -194,6 +194,7 @@ struct DetailViewActionButton: View {
                     Image(systemName: systemName)
                     Text(text)
                 }
+                .font(.caption)
                 .padding(8)
             }
             
