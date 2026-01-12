@@ -98,6 +98,8 @@ struct StreamConditionsDetailViewStack: View {
                 
             }
             
+            DashboardView(location: $location)
+            
             Spacer()
         }
         .padding(.horizontal)

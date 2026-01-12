@@ -23,8 +23,11 @@ public struct LocationSettings: Codable, Hashable {
             graphSeries.append(.init(usgsGraphedElement: series))
         }
         
+        // Sensible defaults handled in respective settings initializers
+        
         self.graphSettings = .init(series: graphSeries)
         self.widgetSettings = .init()
+        self.dashboardSettings = .init()
     }
     
     // Required because firebase/python condenses data when storing
@@ -32,6 +35,7 @@ public struct LocationSettings: Codable, Hashable {
         self.graphSettings = .init(series: [])
         self.displaySettings = .init(series: [])
         self.widgetSettings = .init()
+        self.dashboardSettings = .init()
     }
     
     public init(from decoder: any Decoder) throws {
@@ -39,6 +43,7 @@ public struct LocationSettings: Codable, Hashable {
         self.displaySettings = (try container.decodeIfPresent(WidgetDisplaySettings.self, forKey: .displaySettings)) ?? .init(series: [])
         self.graphSettings = (try container.decodeIfPresent(WidgetGraphSettings.self, forKey: .graphSettings)) ?? .init(series: [])
         self.widgetSettings = (try container.decodeIfPresent(WidgetSettings.self, forKey: .widgetSettings)) ?? .init()
+        self.dashboardSettings = (try container.decodeIfPresent(DashboardSettings.self, forKey: .dashboardSettings)) ?? .init()
     }
     
     public var displaySettings: WidgetDisplaySettings
@@ -46,6 +51,8 @@ public struct LocationSettings: Codable, Hashable {
     public var graphSettings: WidgetGraphSettings
     
     public var widgetSettings: WidgetSettings
+    
+    public var dashboardSettings: DashboardSettings
 }
 
 
