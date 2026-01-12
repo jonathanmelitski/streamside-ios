@@ -10,7 +10,7 @@ import USGSShared
 
 struct WidgetSettingsView: View {
     @Binding var location: Location
-    @State var editingLabelOverride: DisplaySeries? = nil
+    @State var editingLabelOverride: WidgetDisplaySeries? = nil
     
     var body: some View {
         VStack(alignment: .leading) {
