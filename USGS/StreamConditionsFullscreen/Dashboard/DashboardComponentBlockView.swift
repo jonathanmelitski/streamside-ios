@@ -10,15 +10,17 @@ import USGSShared
 
 struct DashboardComponentBlockView: View {
     let block: any DashboardComponentBlock
-    @Binding var loc: Location
+    @Binding var loc: Location?
     let metric: LocationDataMetricDescriptor
     
     var body: some View {
-        switch block.type {
-        case .graph:
-            DashboardGraphView(configuration: block.configuration as! DashboardGraphConfiguration, location: loc, metric: metric)
-        case .value:
-            DashboardValueView(configuration: block.configuration as! DashboardValueConfiguration, location: loc, metric: metric)
+        if let loc {
+            switch block.type {
+            case .graph:
+                DashboardGraphView(configuration: block.configuration as! DashboardGraphConfiguration, location: loc, metric: metric)
+            case .value:
+                DashboardValueView(configuration: block.configuration as! DashboardValueConfiguration, location: loc, metric: metric)
+            }
         }
     }
 }

@@ -10,168 +10,197 @@ import USGSShared
 import MapKit
 
 struct StreamConditionsFullscreenView: View {
-    @State var location: Location
+    let viewContext: ViewContext
+    //@State var location: Location
     
     static let mainDimension: CGFloat = 140
     @State var cameraPosition: MapCameraPosition
     @ObservedObject var vm = SharedViewModel.shared
     
-    init(location: Location) {
-        self.location = location
-        self.cameraPosition = .camera(.init(centerCoordinate: CLLocationCoordinate2D(latitude: location.location.latitude, longitude: location.location.longitude), distance: 5000))
+    init(context: ViewContext) {
+        self.viewContext = context
+        switch context {
+        case .favorite(let id):
+            if let location = SharedViewModel.shared.currentProfile?.gauges.first(where: { $0.id == id }) {
+                self.cameraPosition = .camera(.init(centerCoordinate: CLLocationCoordinate2D(latitude: location.location.latitude, longitude: location.location.longitude), distance: 5000))
+            } else {
+                self.cameraPosition = .automatic
+            }
+        case .search(let location):
+            self.cameraPosition = .camera(.init(centerCoordinate: CLLocationCoordinate2D(latitude: location.location.latitude, longitude: location.location.longitude), distance: 5000))
+        }
     }
+    
+    enum ViewContext {
+        case favorite(id: String)
+        case search(location: Location)
+    }
+    
+    
     
     var body: some View {
         // Two-way body with divider. ultra thick
+        
+        var boundLocation: Binding<Location?> {
+            switch viewContext {
+            case .favorite(let id):
+                return Binding<Location?>(get: {
+                    return (SharedViewModel.shared.currentProfile?.gauges.first(where: { $0.id == id }))
+                }, set: { new in
+                    if let new, let locIdx = SharedViewModel.shared.currentProfile?.gauges.firstIndex(where: { $0.id == id }) {
+                        SharedViewModel.shared.currentProfile?.gauges[locIdx] = new
+                    }
+                })
+            case .search(let location):
+                return .constant(location)
+            }
+        }
+        
         ZStack {
             Map(position: $cameraPosition)
                 .ignoresSafeArea()
                 .disabled(true)
                 .blur(radius: 6)
             ScrollView {
-                StreamConditionsDetailViewStack(location: $location)
+                StreamConditionsDetailViewStack(location: boundLocation)
             }
-        }
-        .onChange(of: location) {
-            if let locIdx = SharedViewModel.shared.currentProfile?.gauges.firstIndex(where: { $0.id == location.id }) {
-                SharedViewModel.shared.currentProfile?.gauges[locIdx] = location
-            }
-            // potentially invalidate widget?
         }
     }
 }
 
 struct StreamConditionsDetailViewStack: View {
-    @Binding var location: Location
+    @Binding var location: Location?
     @State var editingWidget: Bool = false
     
     @ObservedObject var vm = SharedViewModel.shared
     
     var body: some View {
-        VStack(alignment: .center, spacing: 16) {
-            HStack {
-                Spacer()
-                VStack(alignment: .center) {
-                    Group {
-                        if let (river, location, state) = location.tupledName {
-                            Text(river)
-                                .font(.largeTitle)
-                                .bold()
-                            if let state {
-                                Text("\(location), \(state)")
-                                    .font(.headline)
-                            } else {
-                                Text("\(location)")
-                                    .font(.headline)
-                            }
-                        }
-                    }
-                    .multilineTextAlignment(.center)
-                }
-                .padding()
-                Spacer()
-            }
-            .background {
-                RoundedRectangle(cornerRadius: 16)
-                    .foregroundStyle(.thickMaterial)
-            }
-            
-            
-            HStack(spacing: 16) {
-                DetailViewActionButton(systemName: "widget.small", text: "Edit Widget") {
-                    withAnimation {
-                        editingWidget = true
-                    }
-                }
-                DetailViewActionButton(
-                    systemName: (vm.currentProfile?.gauges.contains(where: { $0.id == location.id }) ?? false) ? "star.fill" : "star",
-                    text: (vm.currentProfile?.gauges.contains(where: { $0.id == location.id }) ?? false) ? "Remove Favorite" : "Add Favorite") {
-                        if vm.currentProfile?.gauges.contains(where: { $0.id == location.id }) ?? false {
-                            vm.removeFavoriteLocation(location.id)
-                        } else {
-                            vm.addFavoriteLocation(location)
-                        }
-                }
-                DetailViewActionButton(systemName: "info.circle.text.page", text: "Edit This Page") {
-                    
-                }
-                
-            }
-            
-            DashboardView(location: $location)
-            
-            Spacer()
-        }
-        .padding(.horizontal)
-        .sheet(isPresented: $editingWidget) {
-            VStack {
-                TabView {
-                    VStack {
-                        MediumWidgetView(data: location)
-                            .padding()
-                            .background {
-                                RoundedRectangle(cornerRadius: 24)
-                                    .fill(LinearGradient(colors: [location.settings.widgetSettings.topColor.toSwiftUIColor, location.settings.widgetSettings.bottomColor.toSwiftUIColor], startPoint: .top, endPoint: .bottom))
-                            }
-                            .frame(height: 150)
-                            .shadow(radius: 8)
-                        Spacer()
-                    }
-                    
-                    VStack {
-                        SmallWidgetView(data: location)
-                            .padding()
-                            .background {
-                                RoundedRectangle(cornerRadius: 24)
-                                    .fill(LinearGradient(colors: [location.settings.widgetSettings.topColor.toSwiftUIColor, location.settings.widgetSettings.bottomColor.toSwiftUIColor], startPoint: .top, endPoint: .bottom))
-                            }
-                            .frame(width: 150, height: 150)
-                            .shadow(radius: 8)
-                        Spacer()
-                    }
-                }
-                .tabViewStyle(.page(indexDisplayMode: .always))
-                .indexViewStyle(.page(backgroundDisplayMode: .always))
-                .frame(height: 175)
-                
-                ScrollView {
-                    WidgetSettingsView(location: $location)
-                }
-            }
-            .padding()
-            .overlay {
-                VStack {
-                    HStack {
-                        Spacer()
+        if let location {
+            VStack(alignment: .center, spacing: 16) {
+                HStack {
+                    Spacer()
+                    VStack(alignment: .center) {
                         Group {
-                            if #available(iOS 26, *) {
-                                Button {
-                                    withAnimation {
-                                        editingWidget = false
-                                    }
-                                } label: {
-                                    Text("Done")
-                                        .padding(4)
+                            if let (river, location, state) = location.tupledName {
+                                Text(river)
+                                    .font(.largeTitle)
+                                    .bold()
+                                if let state {
+                                    Text("\(location), \(state)")
+                                        .font(.headline)
+                                } else {
+                                    Text("\(location)")
+                                        .font(.headline)
                                 }
-                                .buttonStyle(.glassProminent)
-                            } else {
-                                Button {
-                                    withAnimation {
-                                        editingWidget = false
-                                    }
-                                } label: {
-                                    Text("Done")
-                                        .padding(4)
-                                }
-                                .buttonStyle(.borderedProminent)
                             }
                         }
-                        .font(.headline)
-                        .padding(16)
+                        .multilineTextAlignment(.center)
                     }
+                    .padding()
                     Spacer()
                 }
+                .background {
+                    RoundedRectangle(cornerRadius: 16)
+                        .foregroundStyle(.thickMaterial)
+                }
+                
+                
+                HStack(spacing: 16) {
+                    DetailViewActionButton(systemName: "widget.small", text: "Edit Widget") {
+                        withAnimation {
+                            editingWidget = true
+                        }
+                    }
+                    DetailViewActionButton(
+                        systemName: (vm.currentProfile?.gauges.contains(where: { $0.id == location.id }) ?? false) ? "star.fill" : "star",
+                        text: (vm.currentProfile?.gauges.contains(where: { $0.id == location.id }) ?? false) ? "Remove Favorite" : "Add Favorite") {
+                            if vm.currentProfile?.gauges.contains(where: { $0.id == location.id }) ?? false {
+                                vm.removeFavoriteLocation(location.id)
+                            } else {
+                                vm.addFavoriteLocation(location)
+                            }
+                    }
+                    DetailViewActionButton(systemName: "info.circle.text.page", text: "Edit This Page") {
+                        
+                    }
+                    
+                }
+                
+                DashboardView(location: $location)
+                
+                Spacer()
             }
+            .padding(.horizontal)
+            .sheet(isPresented: $editingWidget) {
+                VStack {
+                    TabView {
+                        VStack {
+                            MediumWidgetView(data: location)
+                                .padding()
+                                .background {
+                                    RoundedRectangle(cornerRadius: 24)
+                                        .fill(LinearGradient(colors: [location.settings.widgetSettings.topColor.toSwiftUIColor, location.settings.widgetSettings.bottomColor.toSwiftUIColor], startPoint: .top, endPoint: .bottom))
+                                }
+                                .frame(height: 150)
+                                .shadow(radius: 8)
+                            Spacer()
+                        }
+                        
+                        VStack {
+                            SmallWidgetView(data: location)
+                                .padding()
+                                .background {
+                                    RoundedRectangle(cornerRadius: 24)
+                                        .fill(LinearGradient(colors: [location.settings.widgetSettings.topColor.toSwiftUIColor, location.settings.widgetSettings.bottomColor.toSwiftUIColor], startPoint: .top, endPoint: .bottom))
+                                }
+                                .frame(width: 150, height: 150)
+                                .shadow(radius: 8)
+                            Spacer()
+                        }
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .always))
+                    .indexViewStyle(.page(backgroundDisplayMode: .always))
+                    .frame(height: 175)
+                    
+                    ScrollView {
+                        WidgetSettingsView(location: $location)
+                    }
+                }
+                .padding()
+                .overlay {
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Group {
+                                if #available(iOS 26, *) {
+                                    Button {
+                                        withAnimation {
+                                            editingWidget = false
+                                        }
+                                    } label: {
+                                        Text("Done")
+                                            .padding(4)
+                                    }
+                                    .buttonStyle(.glassProminent)
+                                } else {
+                                    Button {
+                                        withAnimation {
+                                            editingWidget = false
+                                        }
+                                    } label: {
+                                        Text("Done")
+                                            .padding(4)
+                                    }
+                                    .buttonStyle(.borderedProminent)
+                                }
+                            }
+                            .font(.headline)
+                            .padding(16)
+                        }
+                        Spacer()
+                    }
+                }
+        }
             
             
         }
@@ -205,10 +234,10 @@ struct DetailViewActionButton: View {
 
 
 
-#Preview {
-    NavigationView {
-        StreamConditionsFullscreenView(location: Location.sampleData)
-    }
-}
+//#Preview {
+//    NavigationView {
+//        StreamConditionsFullscreenView(location: Location.sampleData)
+//    }
+//}
 
 

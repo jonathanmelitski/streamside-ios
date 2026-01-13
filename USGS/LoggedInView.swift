@@ -17,7 +17,8 @@ struct LoggedInView: View {
                 NavigationStack(path: $vm.nav) {
                     StreamConditionsView()
                         .navigationDestination(for: Location.self) { loc in
-                            StreamConditionsFullscreenView(location: loc)
+                            let isFavorite = vm.currentProfile?.gauges.contains(where: { $0.id == loc.id }) ?? false
+                            StreamConditionsFullscreenView(context: isFavorite ? .favorite(id: loc.id) : .search(location: loc))
                         }
                         .navigationDestination(for: String.self) { str in
                             switch str {

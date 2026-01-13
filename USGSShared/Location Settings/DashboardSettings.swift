@@ -15,6 +15,13 @@ public struct DashboardSettings: Codable, Hashable {
     public init() {
         self.displaySections = [] //TODO: add sensible default for blocks (PDOC)
     }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.titleOverride = try container.decodeIfPresent(String.self, forKey: .titleOverride)
+        self.subtitleOverride = try container.decodeIfPresent(String.self, forKey: .subtitleOverride)
+        self.displaySections = (try container.decodeIfPresent([DashboardDisplaySection].self, forKey: .displaySections)) ?? []
+    }
 }
 
 public struct DashboardDisplaySection: Codable, Hashable {
@@ -31,6 +38,14 @@ public struct DashboardDisplaySection: Codable, Hashable {
         //self.blocks = [] //TODO: add sensible default for blocks (PDOC)
         
         self.blocks = [.init(subblocks: [DashboardGraphBlock()]), .init(subblocks: [DashboardValueBlock(), DashboardValueBlock()])]
+    }
+    
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.metric = try container.decode(LocationDataMetricDescriptor.self, forKey: .metric)
+        self.title = try container.decode(String.self, forKey: .title)
+        self.icon = try container.decode(String.self, forKey: .icon)
+        self.blocks = (try container.decodeIfPresent([DashboardDisplayBlock].self, forKey: .blocks)) ?? []
     }
 
 }
@@ -54,7 +69,7 @@ public struct DashboardDisplayBlock: Codable, Hashable {
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.subblocks = try container.decode([GenericComponentBlock].self, forKey: .subblocks)
+        self.subblocks = (try container.decodeIfPresent([GenericComponentBlock].self, forKey: .subblocks)) ?? []
     }
     
     public func encode(to encoder: any Encoder) throws {
@@ -77,6 +92,8 @@ private struct GenericComponentBlock: DashboardComponentBlock, Codable {
         hasher.combine(configuration)
         hasher.combine(type)
         hasher.combine(horizontallyStackable)
+        hasher.combine(index)
+        hasher.combine(id)
     }
     
     let type: DashboardComponentBlockType
@@ -180,6 +197,7 @@ public struct DashboardGraphBlock: DashboardComponentBlock {
         hasher.combine(type)
         hasher.combine(horizontallyStackable)
         hasher.combine(index)
+        hasher.combine(id)
     }
     
     public var id = UUID()
