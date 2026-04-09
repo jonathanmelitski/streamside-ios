@@ -28,6 +28,16 @@ struct DashboardGraphView: View {
         relevantData.compactMap({ Double($0.value) }).max() ?? 0.0
     }
     
+    var relevantGraphLowerBound: Double {
+        let newMin = relevantMinimum - (0.1 * (relevantMaximum - relevantMinimum))
+        return newMin < 0.0 ? 0.0 : newMin
+    }
+    
+    var relevantGraphUpperBound: Double {
+        let newMax = relevantMaximum + (0.1 * (relevantMaximum - relevantMinimum))
+        return newMax
+    }
+    
     var body: some View {
         Chart {
             ForEach(relevantData) { value in
@@ -51,7 +61,7 @@ struct DashboardGraphView: View {
                 }
             }
         }
-        .chartYScale(domain: relevantMinimum ... relevantMaximum)
+        .chartYScale(domain: relevantGraphLowerBound ... relevantGraphUpperBound)
         .chartYAxis(.hidden)
         .chartXAxis(.visible)
         .chartXAxis {

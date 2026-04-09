@@ -50,7 +50,7 @@ struct DashboardSectionView: View {
                 .padding()
                 
             }
-            .transition(.push(from: .bottom))
+            
         }
     }
 }

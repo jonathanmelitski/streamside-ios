@@ -5,6 +5,24 @@
 //  Created by Jonathan Melitski on 1/12/26.
 //
 
+struct SafeDecodedArray<Element: Decodable>: Decodable {
+    let wrappedValue: [Element]
+    
+    init(from decoder: any Decoder) throws {
+        var result: [Element] = []
+        var container = try decoder.unkeyedContainer()
+        while !container.isAtEnd {
+            if let decoded = try? container.decode(Element.self) {
+                result.append(decoded)
+            } else {
+                _ = try container.decodeNil()
+            }
+        }
+        self.wrappedValue = result
+    }
+}
+
+
 public struct DashboardSettings: Codable, Hashable {
     public var titleOverride: String? = nil
     public var subtitleOverride: String? = nil
@@ -20,7 +38,7 @@ public struct DashboardSettings: Codable, Hashable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.titleOverride = try container.decodeIfPresent(String.self, forKey: .titleOverride)
         self.subtitleOverride = try container.decodeIfPresent(String.self, forKey: .subtitleOverride)
-        self.displaySections = (try container.decodeIfPresent([DashboardDisplaySection].self, forKey: .displaySections)) ?? []
+        self.displaySections = (try container.decodeIfPresent(SafeDecodedArray<DashboardDisplaySection>.self, forKey: .displaySections))?.wrappedValue ?? []
     }
 }
 
@@ -45,7 +63,7 @@ public struct DashboardDisplaySection: Codable, Hashable {
         self.metric = try container.decode(LocationDataMetricDescriptor.self, forKey: .metric)
         self.title = try container.decode(String.self, forKey: .title)
         self.icon = try container.decode(String.self, forKey: .icon)
-        self.blocks = (try container.decodeIfPresent([DashboardDisplayBlock].self, forKey: .blocks)) ?? []
+        self.blocks = (try container.decodeIfPresent(SafeDecodedArray<DashboardDisplayBlock>.self, forKey: .blocks))?.wrappedValue ?? []
     }
 
 }
@@ -69,7 +87,7 @@ public struct DashboardDisplayBlock: Codable, Hashable {
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.subblocks = (try container.decodeIfPresent([GenericComponentBlock].self, forKey: .subblocks)) ?? []
+        self.subblocks = (try container.decodeIfPresent(SafeDecodedArray<GenericComponentBlock>.self, forKey: .subblocks))?.wrappedValue ?? []
     }
     
     public func encode(to encoder: any Encoder) throws {
@@ -113,16 +131,21 @@ private struct GenericComponentBlock: DashboardComponentBlock, Codable {
     }
     
     init(from decoder: any Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.type = try container.decode(DashboardComponentBlockType.self, forKey: .type)
-        self.horizontallyStackable = try container.decode(Bool.self, forKey: .horizontallyStackable)
-        self.index = try container.decode(Int.self, forKey: .index)
-        self.id = try container.decode(UUID.self, forKey: .id)
-        switch type {
-        case .graph:
-            self.configuration = try container.decode(DashboardGraphConfiguration.self, forKey: .configuration)
-        case .value:
-            self.configuration = try container.decode(DashboardValueConfiguration.self, forKey: .configuration)
+        do {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.type = try container.decode(DashboardComponentBlockType.self, forKey: .type)
+            self.horizontallyStackable = try container.decode(Bool.self, forKey: .horizontallyStackable)
+            self.index = try container.decode(Int.self, forKey: .index)
+            self.id = try container.decode(UUID.self, forKey: .id)
+            switch type {
+            case .graph:
+                self.configuration = try container.decode(DashboardGraphConfiguration.self, forKey: .configuration)
+            case .value:
+                self.configuration = try container.decode(DashboardValueConfiguration.self, forKey: .configuration)
+            }
+        } catch {
+            print("failed to decode")
+            throw error
         }
     }
     
