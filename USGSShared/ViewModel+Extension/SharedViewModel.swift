@@ -36,6 +36,8 @@ public class SharedViewModel: ObservableObject {
     var profileObserver: UInt? = nil
     
     init() {
+        guard let id = Bundle.main.bundleIdentifier, !id.hasSuffix("Widget") else { return }
+        // Widget timeline handles initialization on it's own, may be of interest to break this out separately, but for now this is the easiest way.
         self.resetState()
     }
     
@@ -119,13 +121,15 @@ public class SharedViewModel: ObservableObject {
         }
     }
     
-    public func resetState(completion: (() -> ())? = nil) {
+    public func resetState(reloadWidgets: Bool = true, completion: (() -> ())? = nil) {
         self.currentProfile = try? JSONDecoder().decode(Profile.self, from: Self.data?.data(forKey: Self.profileKey) ?? Data())
         
         Task { @MainActor in
             await self.handleProfile()
             await self.refreshData()
-            WidgetCenter.shared.reloadTimelines(ofKind: "USGS_Widget")
+            if reloadWidgets {
+                WidgetCenter.shared.reloadTimelines(ofKind: "USGS_Widget")
+            }
             completion?()
         }
     }

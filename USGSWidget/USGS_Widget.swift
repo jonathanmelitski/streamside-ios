@@ -36,7 +36,7 @@ struct Provider: AppIntentTimelineProvider {
     
     func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
         await withCheckedContinuation { cont in
-            SharedViewModel.shared.resetState {
+            SharedViewModel.shared.resetState(reloadWidgets: false) {
                 cont.resume()
             }
         }
