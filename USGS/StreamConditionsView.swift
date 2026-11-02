@@ -25,9 +25,8 @@ struct StreamConditionsView: View {
                     .frame(height: 150)
                     .background {
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(LinearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom))
+                            .fill(LinearGradient(colors: [el.settings.widgetSettings.topColor.toSwiftUIColor, el.settings.widgetSettings.bottomColor.toSwiftUIColor], startPoint: .top, endPoint: .bottom))
                     }
-                    
                     .padding()
                     .shadow(radius: 8)
                 }
@@ -47,6 +46,6 @@ struct StreamConditionsView: View {
                 }
             }
         }
-        .navigationTitle("My Locations")
+        .navigationTitle("My Gages")
     }
 }

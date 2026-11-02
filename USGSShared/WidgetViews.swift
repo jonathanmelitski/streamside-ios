@@ -16,53 +16,64 @@ public struct SmallWidgetView: View {
     }
     
     public var body: some View {
-        if let locShort = data.name.split(separator: " ").first {
-            ZStack {
-                VStack {
-                    Text(locShort.uppercased())
-                        .font(.caption)
-                        .bold()
-                        .shadow(radius: 4)
-                    Spacer()
-                }
-                
-                VStack {
-                    Spacer()
-//                    Chart(USGSDataSeries.cfs.getAllValues(from: data) ?? []) { point in
-//                        if let val = Double(point.value) {
-//                            LineMark(
-//                                x: .value("Date", point.date),
-//                                y: .value("Value", val)
-//                            )
-//                        }
-//                    }
-//                    .chartYScale(domain: .automatic(includesZero: false))
-//                    .chartYAxis(.hidden)
-//                    .chartXAxis(.hidden)
-//                    .frame(height: 40)
-                }
-                
-                HStack {
-                    ForEach(data.metrics, id: \.descriptor.code) { metric in
-                        Spacer()
-                        if let val = metric.descriptorSpecificCurrentValueString {
-                            VStack(spacing: 2) {
-                                Text(val)
-                                    .font(.title2)
-                                    .bold()
-                                    .shadow(radius: 8)
-                                Text("TEMP")
-                                    .font(.caption)
-                                    .bold()
-                                    .shadow(radius: 4)
+        ZStack {
+            VStack {
+                Text((data.settings.widgetSettings.titleOverride ?? data.name).uppercased())
+                    .font(.caption)
+                    .multilineTextAlignment(.center)
+                    .bold()
+                    .shadow(radius: 4)
+                Spacer()
+            }
+            
+            VStack {
+                Spacer()
+                Chart {
+                    ForEach(data.settings.graphSettings.series) { series in
+                        if let metric = data.metrics.first(where: { $0.descriptor == series.usgsGraphedElement }) {
+                            let minValue = metric.descriptorSpecificValues.map(\.value).compactMap(Double.init).min() ?? -1
+                            let maxValue = metric.descriptorSpecificValues.map(\.value).compactMap(Double.init).max() ?? Double.infinity
+                            ForEach(metric.descriptorSpecificValues.filter({ $0.date >= Date.now.addingTimeInterval(Double(-60 * 60 * 24 * data.settings.graphSettings.domainDays)) })) { value in
+                                if let val = Double(value.value) {
+                                    let normalized: Double = (val - minValue) / (maxValue - minValue)
+                                    LineMark(
+                                        x: .value("Date", value.date),
+                                        y: .value("Value", normalized),
+                                        series: .value("Metric", metric.descriptor.name ?? ""))
+                                        .foregroundStyle(series.graphForegroundColor.toSwiftUIColor)
+                                }
                             }
-                            Spacer()
                         }
-                        
+                    }
+                }
+                .chartYScale(domain: 0 ... 1)
+                .chartYAxis(.hidden)
+                .chartXAxis(.hidden)
+                .frame(height: 40)
+            }
+            
+            HStack {
+                ForEach(data.settings.displaySettings.series, id: \.self) { series in
+                    Spacer()
+                    if let metric = data.metrics.first(where: { $0.descriptor.code == series.metric.code }),
+                       let val = metric.descriptorSpecificCurrentValueString {
+                        let label = series.labelOverride ?? metric.descriptorSpecificLabelShort
+                        VStack(spacing: 2) {
+                            Text(val)
+                                .font(.title2)
+                                .bold()
+                                .shadow(radius: 8)
+                            Text(label)
+                                .font(.caption)
+                                .bold()
+                                .shadow(radius: 4)
+                        }
+                        Spacer()
                     }
                 }
             }
         }
+        .foregroundStyle(.white)
     }
 }
 
@@ -82,7 +93,7 @@ public struct MediumWidgetView: View {
                         if let metric = data.metrics.first(where: { $0.descriptor == series.usgsGraphedElement }) {
                             let minValue = metric.descriptorSpecificValues.map(\.value).compactMap(Double.init).min() ?? -1
                             let maxValue = metric.descriptorSpecificValues.map(\.value).compactMap(Double.init).max() ?? Double.infinity
-                            ForEach(metric.descriptorSpecificValues) { value in
+                            ForEach(metric.descriptorSpecificValues.filter({ $0.date >= Date.now.addingTimeInterval(Double(-60 * 60 * 24 * data.settings.graphSettings.domainDays)) })) { value in
                                 if let val = Double(value.value) {
                                     let normalized: Double = (val - minValue) / (maxValue - minValue)
                                     LineMark(
@@ -99,7 +110,7 @@ public struct MediumWidgetView: View {
                 .chartYAxis(.hidden)
                 .chartXAxis(.visible)
                 .chartXAxis {
-                    AxisMarks(values: .stride(by: Calendar.Component.day, count: 2)) {
+                    AxisMarks(values: .stride(by: Calendar.Component.day, count: data.settings.graphSettings.domainDays >= 5 ? 2 : 1)) {
                         AxisValueLabel()
                             .foregroundStyle(Color("GraphAxisForeground"))
                             .font(.system(size: 10))
@@ -112,7 +123,7 @@ public struct MediumWidgetView: View {
                 .frame(height: 75)
             }
             VStack(alignment: .center) {
-                Text(data.name
+                Text((data.settings.widgetSettings.titleOverride ?? data.name)
                     .uppercased())
                     .font(.system(size: 12, weight: .bold))
                     .multilineTextAlignment(.center)
@@ -148,6 +159,18 @@ public struct MediumWidgetView: View {
     MediumWidgetView(data: Location.sampleData)
         .padding()
         .frame(height: 150)
+        .background {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(LinearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom))
+        }
+        .padding()
+        .shadow(radius: 8)
+}
+
+#Preview("Small") {
+    SmallWidgetView(data: Location.sampleData)
+        .padding()
+        .frame(width: 150, height: 150)
         .background {
             RoundedRectangle(cornerRadius: 16)
                 .fill(LinearGradient(colors: [Color("TopGradient"), Color("BottomGradient")], startPoint: .top, endPoint: .bottom))

@@ -17,7 +17,8 @@ struct LoggedInView: View {
                 NavigationStack(path: $vm.nav) {
                     StreamConditionsView()
                         .navigationDestination(for: Location.self) { loc in
-                            StreamConditionsFullscreenView(location: loc)
+                            let isFavorite = vm.currentProfile?.gauges.contains(where: { $0.id == loc.id }) ?? false
+                            StreamConditionsFullscreenView(context: isFavorite ? .favorite(id: loc.id) : .search(location: loc))
                         }
                         .navigationDestination(for: String.self) { str in
                             switch str {
@@ -62,8 +63,13 @@ struct LoggedInView: View {
             }
             
             vm.selectedTab = .conditions
+            
             if let loc = vm.currentProfile?.gauges.first(where: { $0.id == locationId }) {
-                vm.nav.append(loc)
+                Task { @MainActor in
+                    vm.nav.removeLast(vm.nav.count)
+                    try? await Task.sleep(nanoseconds: 250_000_000) // .25 seconds
+                    vm.nav.append(loc)
+                }
             }
         }
     }
